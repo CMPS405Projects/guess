@@ -18,12 +18,15 @@ public class Game {
         this.MAX_PLAYERS = MAX_PLAYERS;
     }
 
-    public void addPlayer(Player player) {
+    public String  addPlayer(Player player) {
+        String message = "";
         if (players.size() < MAX_PLAYERS) {
             players.add(player);
+            message = "Player " + player.name + " added to the game!";
         } else {
-            System.out.println("Game is full. Cannot add more players.");
+            message = "Game is full!";
         }
+        return message;
     }
 
     public void removePlayer(Player player) {
