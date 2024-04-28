@@ -6,7 +6,7 @@ import utils.*;
 public class Server {
     private static final int PORT = 1300;
     private static List<Player> players = new ArrayList<>();
-    private static Map<String, Integer> games = new HashMap<>();
+    private static List<Game> games = new ArrayList<>();
 
     public static void main(String[] args) {
         try {
@@ -18,38 +18,27 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket);
 
-                // Show when a client is disconnected from the server
-                if (clientSocket.isClosed()) {
-                    System.out.println("Client disconnected: " + clientSocket);
-                }
 
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-
-                // Send welcome message to the client
-                writer.println("Welcome to the Guess 2/3 Game server!");
-                writer.println("Enter `help` for a list of commands.");
-
-                while (true) {
-
-                    String choice = reader.readLine();
-
-                    if (choice.equals("exit")) {
-                        writer.println("Goodbye!");
-                        break;
-                    }
-                    // Send login options to the client
-                    writer.println("1. Login");
-                    writer.println("2. Register");
-                    writer.println("3. Exit");
-                }
-
-
-
+                ClientHandler clientHandler = new ClientHandler(clientSocket);
+                Thread clientThread = new Thread(clientHandler);
+                clientThread.start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public static synchronized void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    public static synchronized List<Player> getPlayers() {
+        return players;
+    }
+
+    public static synchronized void addGame(Game game) {
+        games.add(game);
+    }
+
+
 }

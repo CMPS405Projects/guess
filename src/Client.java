@@ -18,30 +18,43 @@ public class Client {
             // Read welcome message from the server
             String welcomeMessage = reader.readLine();
             System.out.println(welcomeMessage);
-
-            // Read login options from the server
-            String loginOption1 = reader.readLine();
-            String loginOption2 = reader.readLine();
-            System.out.println(loginOption1);
-            System.out.println(loginOption2);
-
+            String helpMessage = reader.readLine();
+            System.out.println(helpMessage);
 
             // Read the user's choice and send it to the server
-            BufferedReader userChoice = new BufferedReader(new InputStreamReader(System.in));
-            String choice = userChoice.readLine();
-            writer.println(choice);
-
-            String inputMessage = reader.readLine();
-            System.out.println(inputMessage);
+            BufferedReader clientReader = new BufferedReader(new InputStreamReader(System.in));
 
 
-            // Read the user's ticket or name and send it to the server
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-            String input = userInput.readLine();
-            writer.println(input);
+            while (true) {
+                String choice = clientReader.readLine();
+                writer.println(choice);
 
-            String status = reader.readLine();
-            System.out.println(status);
+                // split choice into arguments if available
+                String firstArg = choice.split(" ")[0];
+
+
+                if (firstArg.equals("exit")) {
+                    break;
+                }
+
+                switch(firstArg){
+                    case("help"):
+                        System.out.println(reader.readLine());
+                        System.out.println(reader.readLine());
+                        System.out.println(reader.readLine());
+                        System.out.println(reader.readLine());
+                        System.out.println(reader.readLine());
+                        System.out.println(reader.readLine());
+                        System.out.println(reader.readLine());
+                        break;
+                    default:
+                        System.out.println(reader.readLine());
+                        break;
+                }
+
+            }
+
+
 
 
             // Handle further communication with the server based on the game's logic
