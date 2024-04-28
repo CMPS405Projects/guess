@@ -28,46 +28,24 @@ public class Server {
                 PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
                 // Send welcome message to the client
-                writer.println("Welcome to the server!");
+                writer.println("Welcome to the Guess 2/3 Game server!");
+                writer.println("Enter `help` for a list of commands.");
 
-                // Send the login options
-                writer.println("1. Login Using Ticket ");
-                writer.println("2. Register New Player");
+                while (true) {
 
-                // Read the user's choice and handle it
-                String choice = "";
-                choice = reader.readLine();
+                    String choice = reader.readLine();
 
-                System.out.println("Choice: " + choice);
-
-
-                while (choice.compareTo("1") != 0 && choice.compareTo("2") != 0){
-                    writer.println("Invalid choice. Please try again.");
-                    choice = reader.readLine();
+                    if (choice.equals("exit")) {
+                        writer.println("Goodbye!");
+                        break;
+                    }
+                    // Send login options to the client
+                    writer.println("1. Login");
+                    writer.println("2. Register");
+                    writer.println("3. Exit");
                 }
 
-                if (choice.equals("1")){
-                    writer.println("Enter your ticket: ");
-                    String ticket = reader.readLine();
-                    boolean found = false;
-                    for (Player player : players){
-                        if (player.ticket.equals(ticket)){
-                            writer.println("Welcome back, " + player.name);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found){
-                        writer.println("Invalid ticket. Please try again.");
-                    }
-                } else if (choice.equals("2")){
-                    writer.println("Enter your name: ");
-                    String name = reader.readLine();
-                    Player player = new Player(name);
-                    player.generateTicket();
-                    players.add(player);
-                    writer.println("Your ticket is: " + player.ticket + ". Please keep it safe.");
-                }
+
 
             }
         } catch (IOException e) {
