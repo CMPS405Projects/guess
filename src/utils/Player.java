@@ -7,6 +7,9 @@ public class Player {
     public String ticket;
     public String name;
 
+    // Status to check if the player is still in the game it will be either [gameId] or [gameId lost] or [none]
+    public String status;
+
     // Players start with score of 5
     public int score = 5;
 
