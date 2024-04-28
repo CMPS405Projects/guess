@@ -10,10 +10,8 @@ public class Player {
     // Players start with score of 5
     public int score = 5;
 
-    Player(String ticket, String name, int score){
-        this.ticket = ticket;
+    public Player(String name){
         this.name = name;
-        this.score = score;
     }
     //Generate ticket of 4 random numbers and name
     public void generateTicket(){
