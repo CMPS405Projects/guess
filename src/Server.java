@@ -4,41 +4,92 @@ import java.util.*;
 import utils.*;
 
 public class Server {
-    private static final int PORT = 1300;
-    private static List<Player> players = new ArrayList<>();
-    private static List<Game> games = new ArrayList<>();
 
-    public static void main(String[] args) {
+    private final int PORT = 13337;
+
+    private List<Socket> connectedClients = new ArrayList<>();
+    private List<Player> connectedPlayers = new ArrayList<>();
+    private List<Player> allPlayers = new ArrayList<>();
+
+    private List<Game> liveGames = new ArrayList<>();
+    private List<Game> allGames = new ArrayList<>();
+
+    private ServerSocket serverSocket;
+
+    public Server() {
         try {
-            ServerSocket serverSocket = new ServerSocket(PORT);
-            System.out.println("Server started. Waiting for Clients...");
-
-            while (true) {
-                // Show when a client is connected to the server
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("New client connected: " + clientSocket);
-
-
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
-                Thread clientThread = new Thread(clientHandler);
-                clientThread.start();
-            }
+            this.serverSocket = new ServerSocket(this.PORT);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static synchronized void addPlayer(Player player) {
-        players.add(player);
+    public void acceptClients() throws IOException {
+        while (true){
+            Socket clientSocket = this.serverSocket.accept();
+            connectedClients.add(clientSocket);
+
+            ClientHandler clientHandler = new ClientHandler(clientSocket, this);
+            Thread clientThread = new Thread(clientHandler);
+            clientThread.start();
+            
+            System.out.println("Client connected.");
+        }
     }
 
-    public static synchronized List<Player> getPlayers() {
-        return players;
+    public void endClient() {
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static synchronized void addGame(Game game) {
-        games.add(game);
+    public void shutdown() {
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    public ServerSocket getServerSocket() {
+        return this.serverSocket;
+    }
+
+    public synchronized void addPlayer(Player player) {
+        allPlayers.add(player);
+        connectedPlayers.add(player);
+    }
+
+    public synchronized List<Player> getConnectedPlayers() {
+        return connectedPlayers;
+    }
+
+    public synchronized List<Game> getLiveGames() {
+        return liveGames;
+    }
+
+    public synchronized List<Player> getAllPlayers() {
+        return allPlayers;
+    }
+
+    public synchronized List<Game> getAllGames() {
+        return allGames;
+    }
+
+    public synchronized void createGame() {
+        Game game = new Game();
+        this.addGame(game);
+    }
+
+    private synchronized void addGame(Game game) {
+        allGames.add(game);
+        liveGames.add(game);
+    }
+
+    public int getPort() {
+        return this.PORT;
+    }
 
 }

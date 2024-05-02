@@ -4,15 +4,15 @@ import java.io.*;
 import java.net.*;
 import java.util.List;
 
-
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private BufferedReader reader;
     private PrintWriter writer;
-
-
-    public ClientHandler(Socket socket) {
+    private Server server;
+    
+    public ClientHandler(Socket socket, Server server) {
         this.clientSocket = socket;
+        this.server = server;
     }
 
     @Override
@@ -69,15 +69,15 @@ public class ClientHandler implements Runnable {
                         }
                         Player player = new Player(secondArg);
                         player.generateTicket();
-                        Server.addPlayer(player);
-                        writer.println("Ticket generated for " + player.name + ": " + player.ticket);
+                        server.addPlayer(player);
+                        writer.println("Ticket generated for " + player.nickname + ": " + player.ticket);
                         break;
                     case "ticket":
                         boolean flag = false;
-                        List<Player> players = Server.getPlayers();
+                        List<Player> players = server.getConnectedPlayers();
                         for (Player p : players) {
                             if (p.ticket.equals(secondArg)) {
-                                writer.println("Welcome " + p.name);
+                                writer.println("Welcome " + p.nickname + "!");
                                 flag = true;
                                 break;
                             }
