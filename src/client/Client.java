@@ -80,8 +80,9 @@ public class Client {
     public void setUpServerStreams() {
         try {
             // Set up input and output streams for communication with the server
-            this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            this.writer = new PrintWriter(clientSocket.getOutputStream(), true);
+            this.reader = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+            this.writer = new PrintWriter(this.clientSocket.getOutputStream(), true);
+            this.clientConsole = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Server streams set up successfully.");
         } catch (IOException e) {
             e.printStackTrace();
