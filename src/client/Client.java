@@ -16,11 +16,11 @@ public class Client {
     public Client() {
         System.out.println("Setting up the client...");
         System.out.println("Setting up the scanner...");
-        this.setUpScanner();
+        // this.setUpScanner();
         System.out.println("Connecting to the server...");
         this.connectToServer();
         System.out.println("Setting up server streams...");
-        this.setUpServerStreams();
+        // this.setUpServerStreams();
         System.out.println("Client set up successfully.");
     }
 
@@ -94,6 +94,7 @@ public class Client {
             this.reader = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
             this.writer = new PrintWriter(this.clientSocket.getOutputStream(), true);
             this.clientConsole = new BufferedReader(new InputStreamReader(System.in));
+            
             System.out.println("Server streams set up successfully.");
         } catch (IOException e) {
             e.printStackTrace();
