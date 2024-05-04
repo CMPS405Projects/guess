@@ -18,30 +18,34 @@ public class ClientDriver {
 
                 BufferedReader reader = client.getClientConsole();
                 // Read the user's choice and send it to the server
-                String choice = reader.readLine();
-                client.sendMessage(choice);
-
-                // split choice into arguments if available
-                String firstArg = choice.split(" ")[0];
-
-                if (firstArg.equals("exit")) {
-                    break;
+                if (reader.ready()) {
+                    String choice = reader.readLine();
+                    client.sendMessage(choice);
                 }
+                    // split choice into arguments if available
+                //     String firstArg = choice.split(" ")[0];
 
-                switch(firstArg){
-                    case("help"):
-                        System.out.println(client.readMessage());
-                        System.out.println(client.readMessage());
-                        System.out.println(client.readMessage());
-                        System.out.println(client.readMessage());
-                        System.out.println(client.readMessage());
-                        System.out.println(client.readMessage());
-                        System.out.println(client.readMessage());
-                        break;
-                    default:
-                        System.out.println(client.readMessage());
-                        break;
-                }
+                //     if (firstArg.equals("exit")) {
+                //         break;
+                //     }
+
+                //     switch(firstArg){
+                //         case("help"):
+                //             System.out.println(reader.readLine());
+                //             System.out.println(reader.readLine());
+                //             System.out.println(reader.readLine());
+                //             System.out.println(reader.readLine());
+                //             System.out.println(reader.readLine());
+                //             System.out.println(reader.readLine());
+                //             System.out.println(reader.readLine());
+                //             break;
+                //         default:
+                //             System.out.println(reader.readLine());
+                //             break;
+                //     }
+                // }  
+    
+                
 
             }
 
