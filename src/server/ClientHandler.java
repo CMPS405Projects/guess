@@ -73,7 +73,6 @@ public class ClientHandler implements Runnable {
                         for (Player p : players) {
                             if (p.getTicket().equals(secondArg)) {
                                 writer.println("Welcome " + p.getNickname() + "!");
-
                                 valid = true;
                                 break;
                             }
