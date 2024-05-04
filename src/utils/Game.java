@@ -2,24 +2,31 @@ package utils;
 
 import java.util.ArrayList;
 import java.lang.Math;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Game {
     private int id;
-    private ArrayList<Player> players = new ArrayList<>();
+//    private HashMap<Player, ArrayList<Boolean>> players;
+    private ArrayList<Player> players;
     private GameStatus status;
+    private int round;
     private final int MIN_PLAYERS = 2;
     private final int MAX_PLAYERS = 6;
 
     public Game() {
-       this.id = 1000 + (int)(Math.random() * 9000);
-       this.status = GameStatus.WAITING;
+        this.id = 1000 + (int) (Math.random() * 9000);
+        this.status = GameStatus.WAITING;
+        this.players = new ArrayList<>();
+//        this.players = new HashMap<>();
+        this.round = 1;
     }
-    
+
     public String addPlayer(Player player) {
         String message = "";
         if (players.size() < MAX_PLAYERS) {
             players.add(player);
-            message = "Player " + player.nickname + " added to the game!";
+            message = "Player " + player.getNickname() + " added to the game!";
         } else {
             message = "Game is full!";
         }

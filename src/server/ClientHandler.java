@@ -75,14 +75,14 @@ public class ClientHandler implements Runnable {
                         Player player = new Player(secondArg);
                         player.generateTicket();
                         server.addPlayer(player);
-                        writer.println("Ticket generated for " + player.nickname + ": " + player.ticket);
+                        writer.println("Ticket generated for " + player.getNickname() + ": " + player.getTicket());
                         break;
                     case "ticket":
                         boolean flag = false;
                         List<Player> players = server.getConnectedPlayers();
                         for (Player p : players) {
-                            if (p.ticket.equals(secondArg)) {
-                                writer.println("Welcome " + p.nickname + "!");
+                            if (p.getTicket().equals(secondArg)) {
+                                writer.println("Welcome " + p.getNickname() + "!");
                                 flag = true;
                                 break;
                             }
