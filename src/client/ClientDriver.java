@@ -3,6 +3,7 @@ package client;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Scanner;
 
 
 public class ClientDriver {
@@ -10,14 +11,26 @@ public class ClientDriver {
 
     public static void main(String[] args) {
         try {
+            if (args.length != 2) {
+                System.out.println("Usage: java ClientDriver <server-ip> <server-port>");
+                System.exit(1);
+            }
+            client.connectToServer(args[0], Integer.parseInt(args[1]));
+            client.setReader(new BufferedReader(new InputStreamReader(client.getServerSocket().getInputStream())));
+            client.setWriter(new PrintWriter(client.getServerSocket().getOutputStream(), true));
+            client.setClientConsole(new BufferedReader(new InputStreamReader(System.in)));
+            client.setScanner(new Scanner(System.in));
+
             BufferedReader reader = client.getReader();
             PrintWriter writer = client.getWriter();
             BufferedReader console = client.getClientConsole();
-            
-            // Display the welcome message from the server
+            Scanner scanner = client.getScanner();
+
+            // // Display the welcome message from the server
             System.out.println(reader.readLine());
             // Display the help message from the server
             System.out.println(reader.readLine());
+
 
             while (true) {
                 // Read the user's choice and send it to the server
@@ -27,7 +40,7 @@ public class ClientDriver {
                 String firstArg = choice.split(" ")[0];
 
                 if (firstArg.equals("exit")) {
-                    break;
+                    client.exit(0);
                 }
 
                 switch(firstArg){

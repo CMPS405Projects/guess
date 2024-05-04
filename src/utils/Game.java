@@ -1,6 +1,9 @@
 package utils;
 
 import java.util.ArrayList;
+
+import server.Server;
+
 import java.lang.Math;
 
 public class Game {
@@ -9,7 +12,8 @@ public class Game {
     private GameStatus status;
     private final int MIN_PLAYERS = 2;
     private final int MAX_PLAYERS = 6;
-
+    private Server server;
+    
     public Game() {
        this.id = 1000 + (int)(Math.random() * 9000);
        this.status = GameStatus.WAITING;
@@ -19,7 +23,7 @@ public class Game {
         String message = "";
         if (players.size() < MAX_PLAYERS) {
             players.add(player);
-            message = "Player " + player.nickname + " added to the game!";
+            message = "Player " + player.getNickname() + " added to the game!";
         } else {
             message = "Game is full!";
         }

@@ -4,49 +4,17 @@ import java.net.*;
 import java.util.Scanner;
 
 public class Client {
-    private static final String SERVER_IP = "localhost"; // Server IP address
-    private static final int SERVER_PORT = 13337; // Server port number
     private Socket serverSocket;
     private BufferedReader reader;
     private PrintWriter writer;
     private BufferedReader clientConsole;
     private Scanner scanner;
 
-    public Client() {
-        System.out.println("Setting up the client...");
-        System.out.println("Setting up the scanner...");
-        this.setUpScanner();
-        System.out.println("Connecting to the server...");
-        this.connectToServer();
-        System.out.println("Setting up server streams...");
-        this.setUpServerStreams();
-        System.out.println("Client set up successfully.");
-    }  
-
-
-    public BufferedReader getReader() {
-        return this.reader;
-    }
-
-    public PrintWriter getWriter() {
-        return this.writer;
-    }
-
-    public BufferedReader getClientConsole() {
-        return this.clientConsole;
-    }  
-
-    public Scanner getScanner() {
-        return this.scanner;
-    }
-
-
-
-    public void connectToServer() {
+    public void connectToServer(String serverIp, int serverPort) {
         while (this.serverSocket == null) {
         try {
             // Connect to the server
-            this.serverSocket = new Socket(SERVER_IP, SERVER_PORT);
+            this.serverSocket = new Socket(serverIp, serverPort);
             System.out.println("Connected to the server.");
         } catch (IOException e) {
             System.out.println("An error occurred while connecting to the server.");
@@ -72,29 +40,6 @@ public class Client {
         }
     }
 
-    private void setUpServerStreams() {
-        try {
-            // Set up input and output streams for communication with the server
-            this.reader = new BufferedReader(new InputStreamReader(this.serverSocket.getInputStream()));
-            this.writer = new PrintWriter(this.serverSocket.getOutputStream(), true);
-            this.clientConsole = new BufferedReader(new InputStreamReader(System.in));
-            
-            System.out.println("Server streams set up successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setUpScanner() {
-        try {
-            this.scanner = new Scanner(System.in);
-            System.out.println("Scanner set up successfully.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
     public Socket getServerSocket() {
         return this.serverSocket;
     }
@@ -106,4 +51,37 @@ public class Client {
             e.printStackTrace();
         }
     }
+
+    public void setReader(BufferedReader reader) {
+        this.reader = reader;
+    }
+
+    public void setWriter(PrintWriter writer) {
+        this.writer = writer;
+    }
+
+    public void setClientConsole(BufferedReader clientConsole) {
+        this.clientConsole = clientConsole;
+    }
+
+    public void setScanner(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
+    public BufferedReader getReader() {
+        return this.reader;
+    }
+
+    public PrintWriter getWriter() {
+        return this.writer;
+    }
+
+    public BufferedReader getClientConsole() {
+        return this.clientConsole;
+    }
+
+    public Scanner getScanner() {
+        return this.scanner;
+    }
+
 }
