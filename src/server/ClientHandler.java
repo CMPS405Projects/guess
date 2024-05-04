@@ -20,7 +20,6 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -31,25 +30,23 @@ public class ClientHandler implements Runnable {
             writer.println("Enter `help` for a list of commands.");
 
             // a command line interface for the server
-            while (true) {
-
-                String choice = reader.readLine();
-
-                // split choice into arguments if available
-                String[] choiceArray = choice.split(" ");
+            String msg;
+            while ((msg = reader.readLine()) != null){
+                // split msg into arguments if available
+                String[] msgArray = msg.split(" ");
                 String firstArg = "";
                 String secondArg = "";
                 String thirdArg = "";
 
-                if (choiceArray.length == 1) {
-                    firstArg = choiceArray[0];
-                } else if (choiceArray.length == 2) {
-                    firstArg = choiceArray[0];
-                    secondArg = choiceArray[1];
-                } else if (choiceArray.length == 3) {
-                    firstArg = choiceArray[0];
-                    secondArg = choiceArray[1];
-                    thirdArg = choiceArray[2];
+                if (msgArray.length == 1) {
+                    firstArg = msgArray[0];
+                } else if (msgArray.length == 2) {
+                    firstArg = msgArray[0];
+                    secondArg = msgArray[1];
+                } else if (msgArray.length == 3) {
+                    firstArg = msgArray[0];
+                    secondArg = msgArray[1];
+                    thirdArg = msgArray[2];
                 }
 
                 if (firstArg.equals("exit")) {
@@ -112,4 +109,14 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+
+    public BufferedReader getReader() {
+        return this.reader;
+    }
+
+    public PrintWriter getWriter() {
+        return this.writer;
+    }
+
+
 }

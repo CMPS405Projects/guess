@@ -2,6 +2,8 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import client.Client;
 import utils.*;
 
 public class Server {
@@ -14,6 +16,8 @@ public class Server {
 
     private List<Game> liveGames = new ArrayList<>();
     private List<Game> allGames = new ArrayList<>();
+
+    private List<ClientHandler> clientHandlers = new ArrayList<>();
 
     private ServerSocket serverSocket;
 
@@ -28,9 +32,10 @@ public class Server {
     public void acceptClients() throws IOException {
         while (true){
             Socket clientSocket = this.serverSocket.accept();
-            connectedClients.add(clientSocket);
 
             ClientHandler clientHandler = new ClientHandler(clientSocket, this);
+            clientHandlers.add(clientHandler);
+            
             Thread clientThread = new Thread(clientHandler);
             clientThread.start();
             
@@ -91,6 +96,12 @@ public class Server {
 
     public int getPort() {
         return this.PORT;
+    }
+
+    public void broadcast(String message) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            clientHandler.getWriter().println(message);
+        }
     }
 
 }
