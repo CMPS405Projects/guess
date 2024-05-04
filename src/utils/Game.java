@@ -1,6 +1,9 @@
 package utils;
 
 import java.util.ArrayList;
+
+import server.Server;
+
 import java.lang.Math;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,8 @@ public class Game {
     private int round;
     private final int MIN_PLAYERS = 2;
     private final int MAX_PLAYERS = 6;
-
+    private Server server;
+    
     public Game() {
         this.id = 1000 + (int) (Math.random() * 9000);
         this.status = GameStatus.WAITING;

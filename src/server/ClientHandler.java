@@ -10,7 +10,8 @@ public class ClientHandler implements Runnable {
     private BufferedReader reader;
     private PrintWriter writer;
     private Server server;
-    
+    private Player player;
+
     public ClientHandler(Socket socket, Server server) {
         this.clientSocket = socket;
         this.server = server;
@@ -20,7 +21,6 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -31,25 +31,23 @@ public class ClientHandler implements Runnable {
             writer.println("Enter `help` for a list of commands.");
 
             // a command line interface for the server
-            while (true) {
-
-                String choice = reader.readLine();
-
-                // split choice into arguments if available
-                String[] choiceArray = choice.split(" ");
+            String msg;
+            while ((msg = reader.readLine()) != null){
+                // split msg into arguments if available
+                String[] msgArray = msg.split(" ");
                 String firstArg = "";
                 String secondArg = "";
                 String thirdArg = "";
 
-                if (choiceArray.length == 1) {
-                    firstArg = choiceArray[0];
-                } else if (choiceArray.length == 2) {
-                    firstArg = choiceArray[0];
-                    secondArg = choiceArray[1];
-                } else if (choiceArray.length == 3) {
-                    firstArg = choiceArray[0];
-                    secondArg = choiceArray[1];
-                    thirdArg = choiceArray[2];
+                if (msgArray.length == 1) {
+                    firstArg = msgArray[0];
+                } else if (msgArray.length == 2) {
+                    firstArg = msgArray[0];
+                    secondArg = msgArray[1];
+                } else if (msgArray.length == 3) {
+                    firstArg = msgArray[0];
+                    secondArg = msgArray[1];
+                    thirdArg = msgArray[2];
                 }
 
                 if (firstArg.equals("exit")) {
@@ -59,57 +57,67 @@ public class ClientHandler implements Runnable {
                 // switch statement to handle the different commands
                 switch (firstArg) {
                     case "help":
-                        writer.println("Command\tArguments\tAction");
-                        writer.println("pseudo\t[pseudonym]\tgenerate new ticket for player with pseudonym");
-                        writer.println("ticket\t[ticket]\tvalidate received ticket and, if valid, welcome player with pseudonym");
-                        writer.println("join\t[gameId]\tjoin game with gameId if it exists otherwise create a new game");
-                        writer.println("ready\t[gameId]\tconfirm player readiness for a game");
-                        writer.println("guess\t[gameId] [number]\tmake a guess for a game");
-                        writer.println("exit\t\texit the game");
+                        printHelpMenu();
                         break;
                     case "pseudo":
                         if (secondArg.length() < 3) {
                             writer.println("Error: Pseudonym must be at least 3 characters long.");
                             break;
                         }
-                        Player player = new Player(secondArg);
-                        player.generateTicket();
-                        server.addPlayer(player);
-                        writer.println("Ticket generated for " + player.getNickname() + ": " + player.getTicket());
+                        player = new Player(secondArg, server);
+                        writer.println("Ticket: " + player.getTicket());
                         break;
                     case "ticket":
-                        boolean flag = false;
-                        List<Player> players = server.getConnectedPlayers();
+                        boolean valid = false;
+                        List<Player> players = server.getAllPlayers();
                         for (Player p : players) {
                             if (p.getTicket().equals(secondArg)) {
                                 writer.println("Welcome " + p.getNickname() + "!");
-                                flag = true;
+                                valid = true;
                                 break;
                             }
                         }
-                        if (!flag) {
-                            writer.println("Error: Invalid Ticket");
-                        }
+                        if (!valid) writer.println("Error: Invalid Ticket");
                         break;
                     default:
                         writer.println("Error: Invalid command. Enter `help` for a list of commands.");
                         break;
                 }
-
-
             }
-
-            reader.close();
-            writer.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            server.endClient(this.clientSocket);
             try {
-                clientSocket.close();
+                reader.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            writer.close();
         }
     }
+
+    public BufferedReader getReader() {
+        return this.reader;
+    }
+
+    public PrintWriter getWriter() {
+        return this.writer;
+    }
+
+    public Socket getClientSocket() {
+        return this.clientSocket;
+    }
+
+    public void printHelpMenu() {
+        writer.println("Command\tArguments\tAction");
+        writer.println("pseudo\t[pseudonym]\tgenerate new ticket for player with pseudonym");
+        writer.println("ticket\t[ticket]\tvalidate received ticket and, if valid, welcome player with pseudonym");
+        writer.println("join\t[gameId]\tjoin game with gameId if it exists otherwise create a new game");
+        writer.println("ready\t[gameId]\tconfirm player readiness for a game");
+        writer.println("guess\t[gameId] [number]\tmake a guess for a game");
+        writer.println("exit\t\texit the game");
+    }
+
 }

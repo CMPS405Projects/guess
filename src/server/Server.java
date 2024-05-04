@@ -8,12 +8,15 @@ public class Server {
 
     private final int PORT = 13337;
 
-    private List<Socket> connectedClients = new ArrayList<>();
-    private List<Player> connectedPlayers = new ArrayList<>();
-    private List<Player> allPlayers = new ArrayList<>();
+    private List<Player> onlinePlayers = Collections.synchronizedList(new ArrayList<>());
+    private List<Player> allPlayers = Collections.synchronizedList(new ArrayList<>());
 
     private List<Game> liveGames = new ArrayList<>();
     private List<Game> allGames = new ArrayList<>();
+
+    private List<ClientHandler> clientHandlers = Collections.synchronizedList(new ArrayList<>());
+
+    private List<String> tickets = Collections.synchronizedList(new ArrayList<>());
 
     private ServerSocket serverSocket;
 
@@ -28,9 +31,10 @@ public class Server {
     public void acceptClients() throws IOException {
         while (true){
             Socket clientSocket = this.serverSocket.accept();
-            connectedClients.add(clientSocket);
 
             ClientHandler clientHandler = new ClientHandler(clientSocket, this);
+            clientHandlers.add(clientHandler);
+            
             Thread clientThread = new Thread(clientHandler);
             clientThread.start();
             
@@ -38,9 +42,16 @@ public class Server {
         }
     }
 
-    public void endClient() {
+    public synchronized void endClient(Socket clientSocket) {
         try {
-            this.serverSocket.close();
+            clientSocket.close();
+            for (ClientHandler clientHandler : clientHandlers) {
+                if (clientHandler.getClientSocket().equals(clientSocket)) {
+                    clientHandlers.remove(clientHandler);
+                    break;
+                }
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,12 +70,12 @@ public class Server {
     }
 
     public synchronized void addPlayer(Player player) {
-        allPlayers.add(player);
-        connectedPlayers.add(player);
+        onlinePlayers.add(player);
+        if (! allPlayers.contains(player)) allPlayers.add(player);
     }
 
-    public synchronized List<Player> getConnectedPlayers() {
-        return connectedPlayers;
+    public synchronized List<Player> getOnlinePlayers() {
+        return onlinePlayers;
     }
 
     public synchronized List<Game> getLiveGames() {
@@ -91,6 +102,12 @@ public class Server {
 
     public int getPort() {
         return this.PORT;
+    }
+
+    public synchronized void broadcast(String message) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            clientHandler.getWriter().println(message);
+        }
     }
 
 }
