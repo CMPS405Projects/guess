@@ -1,14 +1,10 @@
 package client;
-import java.io.*;
-import java.net.*;
-import java.util.Scanner;
-
 public class ClientDriver {
     private static Client client = new Client();
     public static void main(String[] args) {
         try {
             while (client.getClientSocket() != null) {
-                
+
                 // Read welcome message from the server
                 String welcomeMessage = client.readMessage();
                 System.out.println(welcomeMessage);

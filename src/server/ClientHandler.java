@@ -14,14 +14,18 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Socket socket, Server server) {
         this.clientSocket = socket;
         this.server = server;
+        try {
+            this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            this.writer = new PrintWriter(this.clientSocket.getOutputStream(), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void run() {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-
             // Send welcome message to the client
             writer.println("Welcome to the Guess 2/3 Game server!");
             writer.println("Enter `help` for a list of commands.");
