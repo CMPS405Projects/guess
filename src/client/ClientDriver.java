@@ -1,18 +1,24 @@
 package client;
+
+import java.io.BufferedReader;
+
+
 public class ClientDriver {
     private static Client client = new Client();
     public static void main(String[] args) {
         try {
             while (client.getClientSocket() != null) {
 
-                // Read welcome message from the server
-                String welcomeMessage = client.readMessage();
-                System.out.println(welcomeMessage);
-                String helpMessage = client.readMessage();
-                System.out.println(helpMessage);
+                // Read welcome messages from the server
+                while (true) {
+                    System.out.println(client.readMessage());
+                    if (client.getLastMessage() == null) 
+                        break;
+                }
 
-                 // Read the user's choice and send it to the server
-                String choice = client.readConsole();
+                BufferedReader reader = client.getClientConsole();
+                // Read the user's choice and send it to the server
+                String choice = reader.readLine();
                 client.sendMessage(choice);
 
                 // split choice into arguments if available

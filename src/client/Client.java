@@ -11,6 +11,7 @@ public class Client {
     private PrintWriter writer;
     private BufferedReader clientConsole;
     private Scanner scanner;
+    private String lastMessage;
 
     public Client() {
         System.out.println("Setting up the client...");
@@ -23,9 +24,15 @@ public class Client {
         System.out.println("Client set up successfully.");
     }
 
+    public String getLastMessage() {
+        return this.lastMessage;
+    }
+
     public String readConsole() {
         try {
-            return clientConsole.readLine();
+            String message = this.clientConsole.readLine();
+            System.out.println("Message read from console: " + message);
+            return message;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -34,12 +41,18 @@ public class Client {
 
     public String readMessage() {
         try {
-            return reader.readLine();
+            String msg = reader.readLine();
+            this.lastMessage = msg;
+            return msg;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
+
+    public BufferedReader getClientConsole() {
+        return this.clientConsole;
+    }  
 
     public void sendMessage(String message) {
         writer.println(message);
@@ -61,8 +74,6 @@ public class Client {
             }
         }
         }
-       
-
     }
 
     public void exit(int code) {
@@ -87,7 +98,7 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    } 
+    }
 
     public void setUpScanner() {
         try {
