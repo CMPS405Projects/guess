@@ -13,7 +13,7 @@ public class Main implements Runnable {
 
     @Override
     public void run() {
-        while (game.playersCount() >= 2) {
+        while (game.playersCount() >= game.getMinPlayers()) {
             // calculate 2/3 of the avg
             double target = 0.0;
             for (Player player : players) {

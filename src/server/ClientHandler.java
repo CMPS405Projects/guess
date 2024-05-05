@@ -1,4 +1,5 @@
 package server;
+import utils.Game;
 import utils.Player;
 
 import java.io.*;
@@ -11,6 +12,7 @@ public class ClientHandler implements Runnable {
     private PrintWriter writer;
     private Server server;
     private Player player;
+    private String ticket;
 
     public ClientHandler(Socket socket, Server server) {
         this.clientSocket = socket;
@@ -58,15 +60,18 @@ public class ClientHandler implements Runnable {
                 switch (firstArg) {
                     case "help":
                         printHelpMenu();
+                        writer.println("end");
                         break;
                     case "pseudo":
                         if (secondArg.length() < 3) {
                             writer.println("Error: Pseudonym must be at least 3 characters long.");
+                            writer.println("end");
                             break;
                         }
                         player = new Player(secondArg, server);
                         this.player = player;
                         writer.println("Ticket: " + player.getTicket());
+                        writer.println("end");
                         break;
                     case "ticket":
                         boolean valid = false;
@@ -74,21 +79,77 @@ public class ClientHandler implements Runnable {
                         for (Player p : players) {
                             if (p.getTicket().equals(secondArg)) {
                                 writer.println("Welcome " + p.getNickname() + "!");
+                                writer.println("end");
                                 valid = true;
+                                this.ticket = secondArg;
                                 break;
                             }
                         }
                         if (!valid) writer.println("Error: Invalid Ticket");
+                        writer.println("end");
                         break;
                     case "join":
                         if (player == null) {
                             writer.println("Error: You must generate a ticket first.");
+                            writer.println("end");
                             break;
                         }
-                        player.joinGame(secondArg);
+                        player.joinGame(secondArg, this);
+                        writer.println("end");
+                        break;
+                    case "ready":
+                        if (player == null) {
+                            writer.println("Error: You must generate a ticket first.");
+                            writer.println("end");
+                            break;
+                        } else if (this.ticket == null) {
+                            writer.println("Error: You must validate your ticket first.");
+                            writer.println("end");
+                            break;
+                        }
+                        if (player.getStatus().equals(secondArg + " ready")) {
+                            writer.println("Error: You are already ready for this game.");
+                            writer.println("end");
+                            break;
+                        }
+                        String gameName = secondArg;
+                        player.ready(gameName, this);
+                        writer.println("end");
+                        break;
+                    case "menu":
+                        if (secondArg.equals("players")) {
+                            List<Player> playersList = server.getOnlinePlayers();
+                            writer.println("Players: ");
+                            for (Player p : playersList) {
+                                writer.println(p.getNickname());
+                            }
+                        } else if (secondArg.equals("games")) {
+                            List<Game> gamesList = server.getLiveGames();
+                            writer.println("Games: ");
+                            for (Game g : gamesList) {
+                                writer.println(g.getName());
+                            }
+                        } else {
+                            writer.println("Error: Invalid argument. Enter `menu players` or `menu games`.");
+                        }
+                        writer.println("end");
+                        break;
+                    case "guess":
+                        if (player == null) {
+                            writer.println("Error: You must generate a ticket first.");
+                            writer.println("end");
+                            break;
+                        } else if (this.ticket == null) {
+                            writer.println("Error: You must validate your ticket first.");
+                            writer.println("end");
+                            break;
+                        }
+                        player.makeGuess(secondArg, Integer.parseInt(thirdArg), this);
+                        writer.println("end");
                         break;
                     default:
                         writer.println("Error: Invalid command. Enter `help` for a list of commands.");
+                        writer.println("end");
                         break;
                 }
             }
@@ -122,6 +183,7 @@ public class ClientHandler implements Runnable {
         writer.println("Command\tArguments\tAction");
         writer.println("pseudo\t[pseudonym]\tgenerate new ticket for player with pseudonym");
         writer.println("ticket\t[ticket]\tvalidate received ticket and, if valid, welcome player with pseudonym");
+        writer.println("menu\tplayers/games\tlist all connected players or available games");
         writer.println("join\t[gameId]\tjoin game with gameId if it exists otherwise create a new game");
         writer.println("ready\t[gameId]\tconfirm player readiness for a game");
         writer.println("guess\t[gameId] [number]\tmake a guess for a game");

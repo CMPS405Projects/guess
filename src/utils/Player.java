@@ -4,6 +4,9 @@ import java.lang.Math;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+
+import client.Client;
+import server.ClientHandler;
 import server.Server;
 
 //v1.0
@@ -29,9 +32,22 @@ public class Player {
         this.selection = 0;
         this.isWinner = false;
     }
-    
-    public void joinGame(String gameName) {
-        this.server.joinGame(this, gameName);
+    public void ready(String gameName, ClientHandler clientHandler) {
+        this.server.ready(this, gameName, clientHandler);
+    }
+    public void joinGame(String gameName, ClientHandler clientHandler) {
+        this.server.joinGame(this, gameName, clientHandler);
+    }
+
+    public void makeGuess(String gameName, int selection, ClientHandler clientHandler) {
+        if (this.status.equals(gameName + " ready")) {
+            this.selection = selection;
+            clientHandler.getWriter().println("You have selected " + selection);
+        } else if (this.status.equals(gameName + " lost")) {
+            clientHandler.getWriter().println("You have lost the game.");
+        } else {
+            clientHandler.getWriter().println("You are not in the game.");
+        }
     }
 
     private void generateTicket(String nickname) {

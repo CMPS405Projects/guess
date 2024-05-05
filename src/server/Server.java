@@ -26,13 +26,38 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }  
+
+    public void ready(Player player, String gameName, ClientHandler clientHandler) {
+        for (Game game : liveGames) {
+            if (game.getName().equals(gameName) && game.getPlayers().contains(player)){
+                player.setStatus((game.getName()).toString() + " ready");
+                clientHandler.getWriter().println("You are ready to start the game.");
+                return;
+            } else if (game.getName().equals(gameName) && ! game.getPlayers().contains(player)){
+                clientHandler.getWriter().println("You are not in the game.");
+                return;
+            } else if (game.getName().equals(gameName) && game.getPlayers().size() >= 6){
+                clientHandler.getWriter().println("Game is full.");
+                return;
+            } else if (game.getName().equals(gameName) && game.getStatus().equals(GameStatus.ONGOING)){
+                clientHandler.getWriter().println("Game is ongoing.");
+                return;
+            } else if (game.getName().equals(gameName) && game.getStatus().equals(GameStatus.ENDED)){
+                clientHandler.getWriter().println("Game has ended.");
+                return;
+            }
+        }
+        clientHandler.getWriter().println("Game does not exist.");
     }
 
-    public void joinGame(Player player, String gameName) {
+    public void joinGame(Player player, String gameName, ClientHandler clientHandler) {
         for (Game game : liveGames) {
             if (game.getName().equals(gameName) && game.getPlayers().size() < 6){
                 player.setStatus((game.getId()).toString());
                 game.addPlayer(player);
+                // Ask the player to ready
+                clientHandler.getWriter().println("Please enter `ready [gameName]` to start the game.");
                 return;
             }
         }
@@ -40,6 +65,8 @@ public class Server {
         player.setStatus((game.getId()).toString());
         game.addPlayer(player);
         this.addGame(game);
+        // Ask the player to ready
+        clientHandler.getWriter().println("Please enter `ready [gameName]` to start the game.");
     }
 
     public void acceptClients() throws IOException {

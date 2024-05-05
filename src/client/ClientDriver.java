@@ -31,11 +31,15 @@ public class ClientDriver {
             // Display the help message from the server
             System.out.println(reader.readLine());
 
-
+            String msg = "end";
+            String choice = "help";
             while (true) {
                 // Read the user's choice and send it to the server
-                String choice = console.readLine();
-                writer.println(choice);
+                if (msg.equals("end")) {
+                    choice = console.readLine();
+                    writer.println(choice);
+                }
+
                 // split choice into arguments if available
                 String firstArg = choice.split(" ")[0];
 
@@ -43,21 +47,37 @@ public class ClientDriver {
                     client.exit(0);
                 }
 
-                switch(firstArg){
-                    case("help"):
-                        System.out.println(reader.readLine());
-                        System.out.println(reader.readLine());
-                        System.out.println(reader.readLine());
-                        System.out.println(reader.readLine());
-                        System.out.println(reader.readLine());
-                        System.out.println(reader.readLine());
-                        System.out.println(reader.readLine());
+                while ((msg = reader.readLine()) != null){
+                    if (msg.equals("end")){
                         break;
-                    default:
-                        System.out.println(reader.readLine());
-                        break;
+                    }
+                    System.out.println(msg);
                 }
-            
+
+                // switch(firstArg){
+                //     case("help"):
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         System.out.println(reader.readLine());
+                //         break;
+                //     case("menu"):
+                //         String msg;
+                //         while ((msg = reader.readLine()) != null){
+                //             if (msg.equals("end menu")){
+                //                 break;
+                //             }
+                //             System.out.println(msg);
+                //         }
+                //         break;
+                //     default:
+                //         System.out.println(reader.readLine());
+                //         break;
+                // }
             }
 
             // Handle further communication with the server based on the game's logic

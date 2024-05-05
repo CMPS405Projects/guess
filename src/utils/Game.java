@@ -27,7 +27,6 @@ public class Game {
         this.id = idCounter + (int) (Math.random() * 9000);
         this.status = GameStatus.WAITING;
         this.players = new ArrayList<>();
-//        this.players = new HashMap<>();
         this.round = 1;
         this.name = name;
     }
@@ -75,5 +74,17 @@ public class Game {
 
     public List<Player> getPlayers() {
         return this.players;
+    }
+
+    public int getMinPlayers() {
+        return this.MIN_PLAYERS;
+    }
+
+    public int getMaxPlayers() {
+        return this.MAX_PLAYERS;
+    }
+
+    public GameStatus getStatus() {
+        return this.status;
     }
 }
