@@ -7,7 +7,7 @@ import java.util.HexFormat;
 import server.Server;
 
 //v1.0
-public class Player implements Runnable {
+public class Player {
     private String ticket;
     // pseudonym
     private String nickname;
@@ -30,10 +30,8 @@ public class Player implements Runnable {
         this.isWinner = false;
     }
     
-  @Override
-    public void run() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'run'");
+    public void joinGame(String gameName) {
+        this.server.joinGame(this, gameName);
     }
 
     private void generateTicket(String nickname) {

@@ -15,11 +15,11 @@ public class ClientDriver {
                 System.out.println("Usage: java ClientDriver <server-ip> <server-port>");
                 System.exit(1);
             }
+            client.setScanner(new Scanner(System.in));
             client.connectToServer(args[0], Integer.parseInt(args[1]));
             client.setReader(new BufferedReader(new InputStreamReader(client.getServerSocket().getInputStream())));
             client.setWriter(new PrintWriter(client.getServerSocket().getOutputStream(), true));
             client.setClientConsole(new BufferedReader(new InputStreamReader(System.in)));
-            client.setScanner(new Scanner(System.in));
 
             BufferedReader reader = client.getReader();
             PrintWriter writer = client.getWriter();

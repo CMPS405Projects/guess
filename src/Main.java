@@ -1,11 +1,8 @@
 import utils.Game;
 import utils.Player;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main implements Runnable {
-
     private Game game;
     private List<Player> players;
 

@@ -1,29 +1,35 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import server.Server;
 
 import java.lang.Math;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Game {
-    private int id;
+    private static int idCounter = 0;
+    private Integer id;
 //    private HashMap<Player, ArrayList<Boolean>> players;
-    private ArrayList<Player> players;
+    private List<Player> players = Collections.synchronizedList(new ArrayList<>());
     private GameStatus status;
     private int round;
     private final int MIN_PLAYERS = 2;
     private final int MAX_PLAYERS = 6;
     private Server server;
-    
-    public Game() {
-        this.id = 1000 + (int) (Math.random() * 9000);
+    private String name;
+
+    public Game(String name) {
+        idCounter++;
+        this.id = idCounter + (int) (Math.random() * 9000);
         this.status = GameStatus.WAITING;
         this.players = new ArrayList<>();
 //        this.players = new HashMap<>();
         this.round = 1;
+        this.name = name;
     }
 
     public String addPlayer(Player player) {
@@ -59,4 +65,15 @@ public class Game {
         return players.size();
     }
 
+    public Integer getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public List<Player> getPlayers() {
+        return this.players;
+    }
 }

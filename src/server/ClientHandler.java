@@ -65,6 +65,7 @@ public class ClientHandler implements Runnable {
                             break;
                         }
                         player = new Player(secondArg, server);
+                        this.player = player;
                         writer.println("Ticket: " + player.getTicket());
                         break;
                     case "ticket":
@@ -78,6 +79,13 @@ public class ClientHandler implements Runnable {
                             }
                         }
                         if (!valid) writer.println("Error: Invalid Ticket");
+                        break;
+                    case "join":
+                        if (player == null) {
+                            writer.println("Error: You must generate a ticket first.");
+                            break;
+                        }
+                        player.joinGame(secondArg);
                         break;
                     default:
                         writer.println("Error: Invalid command. Enter `help` for a list of commands.");

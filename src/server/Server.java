@@ -28,6 +28,20 @@ public class Server {
         }
     }
 
+    public void joinGame(Player player, String gameName) {
+        for (Game game : liveGames) {
+            if (game.getName().equals(gameName) && game.getPlayers().size() < 6){
+                player.setStatus((game.getId()).toString());
+                game.addPlayer(player);
+                return;
+            }
+        }
+        Game game = new Game(gameName);
+        player.setStatus((game.getId()).toString());
+        game.addPlayer(player);
+        this.addGame(game);
+    }
+
     public void acceptClients() throws IOException {
         while (true){
             Socket clientSocket = this.serverSocket.accept();
@@ -90,14 +104,15 @@ public class Server {
         return allGames;
     }
 
-    public synchronized void createGame() {
-        Game game = new Game();
+    public synchronized void createGame(String gameName) {
+        Game game = new Game(gameName);
         this.addGame(game);
     }
 
     private synchronized void addGame(Game game) {
-        allGames.add(game);
         liveGames.add(game);
+        if (allGames.contains(game)) return ;
+        allGames.add(game);
     }
 
     public int getPort() {
