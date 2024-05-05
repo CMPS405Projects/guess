@@ -1,5 +1,6 @@
 package server;
 import utils.Game;
+import utils.GameHandler;
 import utils.Player;
 
 import java.io.*;
@@ -124,10 +125,12 @@ public class ClientHandler implements Runnable {
                                 writer.println(p.getNickname());
                             }
                         } else if (secondArg.equals("games")) {
-                            List<Game> gamesList = server.getLiveGames();
+                            List<GameHandler> gamesList = server.getLiveGames();
                             writer.println("Games: ");
-                            for (Game g : gamesList) {
-                                writer.println(g.getName());
+                            Game game;
+                            for (GameHandler g : gamesList) {
+                                game = g.getGame();
+                                writer.println(game.getName());
                             }
                         } else {
                             writer.println("Error: Invalid argument. Enter `menu players` or `menu games`.");

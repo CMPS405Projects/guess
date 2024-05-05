@@ -4,8 +4,6 @@ import java.lang.Math;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
-
-import client.Client;
 import server.ClientHandler;
 import server.Server;
 
@@ -15,12 +13,13 @@ public class Player {
     // pseudonym
     private String nickname;
     // Status to check if the player is still in the game it will be either [gameId] or [gameId lost] or [none]
-    private String status;
+    private PlayerStatus status;
     // Players start with score of 5
     private int score;
     private Server server;
     private int selection;
     private boolean isWinner;
+    private Game game;
 
     public Player(String nickname, Server server){
         this.nickname = nickname;
@@ -28,7 +27,7 @@ public class Player {
         this.generateTicket(nickname);
         this.server.addPlayer(this);
         this.resetScore();
-        this.status = "none";
+        this.status = PlayerStatus.NONE;
         this.selection = 0;
         this.isWinner = false;
     }
@@ -40,13 +39,19 @@ public class Player {
     }
 
     public void makeGuess(String gameName, int selection, ClientHandler clientHandler) {
-        if (this.status.equals(gameName + " ready")) {
+        if (this.status.equals(PlayerStatus.READY)) {
             this.selection = selection;
-            clientHandler.getWriter().println("You have selected " + selection);
-        } else if (this.status.equals(gameName + " lost")) {
-            clientHandler.getWriter().println("You have lost the game.");
+            clientHandler.getWriter().println("You have selected " + selection + ".");
+        } else if (this.status.equals(PlayerStatus.LOST)) {
+            clientHandler.getWriter().println("You have lost the game. You cannot make a guess :(");
+        } else if (this.status.equals(PlayerStatus.JOINED)) {
+            clientHandler.getWriter().println("You have not readied up yet.");
+        } else if (this.status.equals(PlayerStatus.WON)) {
+            clientHandler.getWriter().println("You have already won the game. You cannot make a guess :)");
+        } else if (this.status.equals(PlayerStatus.SPECTATING)) {
+            clientHandler.getWriter().println("You are spectating the game. You cannot make a guess.");
         } else {
-            clientHandler.getWriter().println("You are not in the game.");
+            clientHandler.getWriter().println("You are not in a game.");
         }
     }
 
@@ -70,7 +75,7 @@ public class Player {
         this.nickname = nickname;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(PlayerStatus status) {
         this.status = status;
     }
 
@@ -99,7 +104,7 @@ public class Player {
         return this.nickname;
     }
 
-    public String getStatus() {
+    public PlayerStatus getStatus() {
         return this.status;
     }
 
@@ -109,5 +114,9 @@ public class Player {
   
       public int getSelection() {
         return selection;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }

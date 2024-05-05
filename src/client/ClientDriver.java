@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-
 public class ClientDriver {
     private static Client client = new Client();
 
@@ -40,55 +39,19 @@ public class ClientDriver {
                     writer.println(choice);
                 }
 
-                // split choice into arguments if available
-                String firstArg = choice.split(" ")[0];
+                if (choice.equals("exit")) client.exit(0);
 
-                if (firstArg.equals("exit")) {
-                    client.exit(0);
-                }
-
-                while ((msg = reader.readLine()) != null){
-                    if (msg.equals("end")){
-                        break;
-                    }
+                while ((msg = reader.readLine()) != null) {
+                    if (msg.equals("end")) break;
                     System.out.println(msg);
                 }
-
-                // switch(firstArg){
-                //     case("help"):
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         System.out.println(reader.readLine());
-                //         break;
-                //     case("menu"):
-                //         String msg;
-                //         while ((msg = reader.readLine()) != null){
-                //             if (msg.equals("end menu")){
-                //                 break;
-                //             }
-                //             System.out.println(msg);
-                //         }
-                //         break;
-                //     default:
-                //         System.out.println(reader.readLine());
-                //         break;
-                // }
             }
-
-            // Handle further communication with the server based on the game's logic
-            // For example, sending requests to join a game, etc.
-
         } catch (Exception e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         } finally {
-            client.exit(0);
             System.out.println("Client shutting down...");
+            client.exit(0);
         }
     }
 }
