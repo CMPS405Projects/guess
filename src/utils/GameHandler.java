@@ -8,7 +8,7 @@ public class GameHandler implements Runnable {
     private Game game;
     private boolean ready = false;
     private boolean allSelectionsMade = false;
-    private static final int TIMEOUT_MS = 10000;
+    private static final int TIMEOUT_MS = 20000;
 
     public GameHandler(Game game) {
         this.game = game;
@@ -86,20 +86,20 @@ public class GameHandler implements Runnable {
                     }
                 }
 
-                if (game.activePlayersCount() == game.getMinPlayers()) {
-                    for (ClientHandler clientHandler : game.getClientHandlers()) {
-                        if (clientHandler.getPlayer().getSelection() == 0) {
-                            clientHandler.getPlayer().decrementScore();
-                            if (clientHandler.getPlayer().getScore() > 0) {
-                                clientHandler.getPlayer().setStatus(PlayerStatus.LOST);
-                            } else {
-                                clientHandler.getPlayer().setStatus(PlayerStatus.SPECTATING);
-                            }
-                        } else {
-                            clientHandler.getPlayer().setStatus(PlayerStatus.WON);
-                        }
-                    }
-                } else {
+//                if (game.activePlayersCount() == game.getMinPlayers()) {
+//                    for (ClientHandler clientHandler : game.getClientHandlers()) {
+//                        if (clientHandler.getPlayer().getSelection() == 0) {
+//                            clientHandler.getPlayer().decrementScore();
+//                            if (clientHandler.getPlayer().getScore() > 0) {
+//                                clientHandler.getPlayer().setStatus(PlayerStatus.LOST);
+//                            } else {
+//                                clientHandler.getPlayer().setStatus(PlayerStatus.SPECTATING);
+//                            }
+//                        } else {
+//                            clientHandler.getPlayer().setStatus(PlayerStatus.WON);
+//                        }
+//                    }
+//                } else {
                     for (int i = 0; i < game.activePlayersCount(); i++) {
                         if (diff[i] == minDiff) {
                             game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.WON);
@@ -112,7 +112,7 @@ public class GameHandler implements Runnable {
                             }
                         }
                     }
-                }
+//                }
                 StringBuilder roundMsg = new StringBuilder();
                 roundMsg.append("game ").append(game.getName()).append("round ").append(game.getRound()).append(" ");
                 roundMsg.append("target ").append(target);
