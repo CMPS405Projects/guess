@@ -3,6 +3,7 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import utils.*;
 
 public class Server {
@@ -30,11 +31,20 @@ public class Server {
     }
 
     public void ready(Player player, String gameName, ClientHandler clientHandler) {
-        if (player.getGame().getName().equals(gameName) && player.getStatus().equals(PlayerStatus.JOINED)) {
-            player.setStatus(PlayerStatus.READY);
-            clientHandler.getWriter().println("You are ready to start the game.");
-        } else if (!player.getGame().getName().equals(gameName)) {
-            clientHandler.getWriter().println("You are not in this game/game does not exist.");
+        GameHandler gameHandler = getGameHandler(gameName);
+        if (gameHandler == null) {
+            clientHandler.getWriter().println("Game does not exist.");
+            return;
+        }
+        Game game = gameHandler.getGame();
+        synchronized (game) {
+            if (player.getGame().getName().equals(gameName) && player.getStatus().equals(PlayerStatus.JOINED)) {
+                player.setStatus(PlayerStatus.READY);
+                clientHandler.getWriter().println("You are ready to start the game.");
+                game.notify();
+            } else if (!player.getGame().getName().equals(gameName)) {
+                clientHandler.getWriter().println("You are not in this game.");
+            }
         }
     }
 
@@ -62,25 +72,26 @@ public class Server {
             this.createGame(game);
             return;
         }
-
         // if the game exists, add the player to the game
         Game game = gameHandler.getGame();
-        if (game.playersCount() >= game.getMaxPlayers()) {
-            clientHandler.getWriter().println("Game is full.");
-            return;
-        } else if (game.getStatus().equals(GameStatus.ONGOING)) {
-            clientHandler.getWriter().println("Game is ongoing.");
-            return;
-        } else if (game.getStatus().equals(GameStatus.ENDED)) {
-            clientHandler.getWriter().println("Game has ended.");
-            return;
+        synchronized (game) {
+            if (game.playersCount() >= game.getMaxPlayers()) {
+                clientHandler.getWriter().println("Game is full.");
+                return;
+            } else if (game.getStatus().equals(GameStatus.ONGOING)) {
+                clientHandler.getWriter().println("Game is ongoing.");
+                return;
+            } else if (game.getStatus().equals(GameStatus.ENDED)) {
+                clientHandler.getWriter().println("Game has ended.");
+                return;
+            }
+            // Add the player to the game
+            player.setStatus(PlayerStatus.JOINED);
+            player.setGame(game);
+            game.addClientHandler(clientHandler);
+            this.addGame(game);
+            game.notify();
         }
-        // Add the player to the game
-        player.setStatus(PlayerStatus.JOINED);
-        player.setGame(game);
-        game.addClientHandler(clientHandler);
-        this.addGame(game);
-
         // Ask the player to ready
         clientHandler.getWriter().println("Please enter `ready [gameName]` to start the game.");
     }

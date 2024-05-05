@@ -4,6 +4,7 @@ import java.lang.Math;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+
 import server.ClientHandler;
 import server.Server;
 
@@ -40,19 +41,29 @@ public class Player {
     }
 
     public void makeGuess(String gameName, int selection, ClientHandler clientHandler) {
-        if (this.status.equals(PlayerStatus.READY)) {
+        synchronized (this.getGame()) {
+            while (this.getSelection() != null) {
+                try {
+                    game.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+//            if (this.status.equals(PlayerStatus.READY)) {
             this.selection = selection;
             clientHandler.getWriter().println("You have selected " + selection + ".");
-        } else if (this.status.equals(PlayerStatus.LOST)) {
-            clientHandler.getWriter().println("You have lost the game. You cannot make a guess :(");
-        } else if (this.status.equals(PlayerStatus.JOINED)) {
-            clientHandler.getWriter().println("You have not readied up yet.");
-        } else if (this.status.equals(PlayerStatus.WON)) {
-            clientHandler.getWriter().println("You have already won the game. You cannot make a guess :)");
-        } else if (this.status.equals(PlayerStatus.SPECTATING)) {
-            clientHandler.getWriter().println("You are spectating the game. You cannot make a guess.");
-        } else {
-            clientHandler.getWriter().println("You are not in a game.");
+            this.getGame().notify();
+//            } else if (this.status.equals(PlayerStatus.LOST)) {
+//                clientHandler.getWriter().println("You have lost the game. You cannot make a guess :(");
+//            } else if (this.status.equals(PlayerStatus.JOINED)) {
+//                clientHandler.getWriter().println("You have not readied up yet.");
+//            } else if (this.status.equals(PlayerStatus.WON)) {
+//                clientHandler.getWriter().println("You have already won the game. You cannot make a guess :)");
+//            } else if (this.status.equals(PlayerStatus.SPECTATING)) {
+//                clientHandler.getWriter().println("You are spectating the game. You cannot make a guess.");
+//            } else {
+//                clientHandler.getWriter().println("You are not in a game.");
+//            }
         }
     }
 

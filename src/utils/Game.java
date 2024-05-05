@@ -47,6 +47,9 @@ public class Game {
     }
 
     public void endGame() {
+        for (ClientHandler clientHandler : clientHandlers) {
+            clientHandler.getPlayer().reset();
+        }
         status = GameStatus.ENDED;
     }
 
@@ -90,4 +93,11 @@ public class Game {
         return this.status;
     }
 
+    public int getRound() {
+        return round;
+    }
+
+    public void incrementRound() {
+        this.round += 1;
+    }
 }
