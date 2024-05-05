@@ -1,5 +1,6 @@
 import utils.Game;
 import utils.Player;
+import utils.PlayerStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,16 @@ public class Main implements Runnable {
 
             for (int i = 0; i < players.size(); i++) {
                 if (diff[i] == minDiff) {
-                    players.get(i).setWinner(true);
+                    players.get(i).setStatus(PlayerStatus.WINNER);
                 }else {
                     players.get(i).decrementScore();
+                    players.get(i).setStatus(PlayerStatus.LOSER);
+                }
+            }
+
+            for (Player player : players) {
+                if (player.getScore() == 0) {
+                    player.setStatus(PlayerStatus.SPECTATOR);
                 }
             }
 

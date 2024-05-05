@@ -4,6 +4,7 @@ import java.lang.Math;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+
 import server.Server;
 
 //v1.0
@@ -12,25 +13,25 @@ public class Player implements Runnable {
     // pseudonym
     private String nickname;
     // Status to check if the player is still in the game it will be either [gameId] or [gameId lost] or [none]
-    private String status;
+    private PlayerStatus status;
     // Players start with score of 5
     private int score;
     private Server server;
-    private int selection;
+    private Integer selection;
     private boolean isWinner;
 
-    public Player(String nickname, Server server){
+    public Player(String nickname, Server server) {
         this.nickname = nickname;
         this.server = server;
         this.generateTicket(nickname);
         this.server.addPlayer(this);
         this.resetScore();
-        this.status = "none";
-        this.selection = 0;
+        this.status = null;
+        this.resetSelection();
         this.isWinner = false;
     }
-    
-  @Override
+
+    @Override
     public void run() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'run'");
@@ -46,7 +47,7 @@ public class Player implements Runnable {
             e.printStackTrace();
         }
         this.ticket = HexFormat.ofDelimiter(":").formatHex(hash).toString().substring(78);
-   }
+    }
 
     public boolean isWinner() {
         return isWinner;
@@ -56,7 +57,7 @@ public class Player implements Runnable {
         this.nickname = nickname;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(PlayerStatus status) {
         this.status = status;
     }
 
@@ -77,6 +78,10 @@ public class Player implements Runnable {
         this.score = 5;
     }
 
+    public void resetSelection() {
+        this.selection = null;
+    }
+
     public String getTicket() {
         return this.ticket;
     }
@@ -85,15 +90,15 @@ public class Player implements Runnable {
         return this.nickname;
     }
 
-    public String getStatus() {
+    public PlayerStatus getStatus() {
         return this.status;
     }
 
     public int getScore() {
         return this.score;
     }
-  
-      public int getSelection() {
+
+    public int getSelection() {
         return selection;
     }
 }

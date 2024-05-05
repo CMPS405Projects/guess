@@ -10,19 +10,17 @@ import java.util.Map;
 
 public class Game {
     private int id;
-//    private HashMap<Player, ArrayList<Boolean>> players;
     private ArrayList<Player> players;
     private GameStatus status;
     private int round;
     private final int MIN_PLAYERS = 2;
     private final int MAX_PLAYERS = 6;
     private Server server;
-    
+
     public Game() {
         this.id = 1000 + (int) (Math.random() * 9000);
         this.status = GameStatus.WAITING;
         this.players = new ArrayList<>();
-//        this.players = new HashMap<>();
         this.round = 1;
     }
 
@@ -47,11 +45,14 @@ public class Game {
 
     public void endGame() {
         status = GameStatus.ENDED;
+        for (Player player : players) {
+            player.resetScore();
+        }
     }
 
     public void resetRound() {
         for (Player player : players) {
-            player.resetScore();
+            player.resetSelection();
         }
     }
 

@@ -12,6 +12,9 @@ public class ClientDriver {
     public static void main(String[] args) {
         try {
             if (args.length != 2) {
+                for (String s : args) {
+                    System.out.println(s);
+                }
                 System.out.println("Usage: java ClientDriver <server-ip> <server-port>");
                 System.exit(1);
             }
