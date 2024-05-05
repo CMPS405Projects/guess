@@ -2,6 +2,7 @@ package utils;
 
 import server.ClientHandler;
 
+import java.util.Formatter;
 import java.util.Timer;
 
 public class GameHandler implements Runnable {
@@ -77,55 +78,50 @@ public class GameHandler implements Runnable {
                     target += (double) (2 * clientHandler.getPlayer().getSelection()) / (3 * game.activePlayersCount());
                 }
 
-                double minDiff = Double.MAX_VALUE;
+                double minDiff = Double.MAX_VALUE - 1;
                 double[] diff = new double[game.activePlayersCount()];
                 for (int i = 0; i < game.activePlayersCount(); i++) {
-                    diff[i] = Math.abs((double) game.getClientHandlers().get(i).getPlayer().getSelection() - target);
+                    if (game.activePlayersCount() == game.getMinPlayers() && game.getClientHandlers().get(i).getPlayer().getSelection() == 0) {
+                        diff[i] = Double.MAX_VALUE;
+                    } else {
+                        diff[i] = Math.abs((double) game.getClientHandlers().get(i).getPlayer().getSelection() - target);
+                    }
                     if (diff[i] < minDiff) {
                         minDiff = diff[i];
                     }
                 }
 
-//                if (game.activePlayersCount() == game.getMinPlayers()) {
-//                    for (ClientHandler clientHandler : game.getClientHandlers()) {
-//                        if (clientHandler.getPlayer().getSelection() == 0) {
-//                            clientHandler.getPlayer().decrementScore();
-//                            if (clientHandler.getPlayer().getScore() > 0) {
-//                                clientHandler.getPlayer().setStatus(PlayerStatus.LOST);
-//                            } else {
-//                                clientHandler.getPlayer().setStatus(PlayerStatus.SPECTATING);
-//                            }
-//                        } else {
-//                            clientHandler.getPlayer().setStatus(PlayerStatus.WON);
-//                        }
-//                    }
-//                } else {
-                    for (int i = 0; i < game.activePlayersCount(); i++) {
-                        if (diff[i] == minDiff) {
-                            game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.WON);
+                for (int i = 0; i < game.activePlayersCount(); i++) {
+                    if (diff[i] == minDiff) {
+                        game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.WON);
+                    } else {
+                        game.getClientHandlers().get(i).getPlayer().decrementScore();
+                        if (game.getClientHandlers().get(i).getPlayer().getScore() > 0) {
+                            game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.LOST);
                         } else {
-                            game.getClientHandlers().get(i).getPlayer().decrementScore();
-                            if (game.getClientHandlers().get(i).getPlayer().getScore() > 0) {
-                                game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.LOST);
-                            } else {
-                                game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.SPECTATING);
-                            }
+                            game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.SPECTATING);
                         }
                     }
-//                }
-                StringBuilder roundMsg = new StringBuilder();
-                roundMsg.append("game ").append(game.getName()).append("round ").append(game.getRound()).append(" ");
-                roundMsg.append("target ").append(target);
-                for (ClientHandler clientHandler : game.getClientHandlers()) {
-                    roundMsg.append("player: ").append(clientHandler.getPlayer().getNickname())
-                            .append(" ").append("score: ").append(clientHandler.getPlayer().getScore()).append("\n");
                 }
+
+                Formatter roundMsg = new Formatter();
+                roundMsg.format("game %s round %d", game.getName(), game.getRound());
+                // #TODO format output
                 broadcast(roundMsg.toString());
                 game.resetRound();
                 allSelectionsMade = false;
                 game.notifyAll();
             }
-            broadcast("Winner is: " + game.getClientHandlers().getFirst().getPlayer().getNickname());
+
+            Player winner = null;
+            for (ClientHandler clientHandler : game.getClientHandlers()) {
+                if (!clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
+                    winner = clientHandler.getPlayer();
+                    broadcast("Winner is: " + winner.getNickname());
+                    // #TODO update leaderboard
+                }
+            }
+
             game.endGame();
         }
     }
