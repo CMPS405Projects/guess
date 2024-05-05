@@ -5,6 +5,7 @@ import server.ClientHandler;
 public class GameHandler implements Runnable {
     private Game game;
     private boolean ready = false;
+    private boolean selctionNull = true;
 
     public GameHandler(Game game) {
         this.game = game;
@@ -36,6 +37,20 @@ public class GameHandler implements Runnable {
         }
 
         while (game.activePlayersCount() >= game.getMinPlayers()) {
+            while (selctionNull) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                selctionNull = false;
+                for (ClientHandler clientHandler : game.getClientHandlers()) {
+                    if (clientHandler.getPlayer().getSelection().equals(null)) {
+                        selctionNull = true;
+                        break;
+                    }
+                }
+            }
             // calculate 2/3 of the avg
             double target = 0.0;
             for (ClientHandler clientHandler : game.getClientHandlers()) {
@@ -59,7 +74,12 @@ public class GameHandler implements Runnable {
                     game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.LOST);
                 }
             }
-
+            broadcast("Round over! The target was " + target + "!");
+            broadcast("Scores:");
+            for (ClientHandler clientHandler : game.getClientHandlers()) {
+                broadcast(clientHandler.getPlayer().getNickname() + ": " + clientHandler.getPlayer().getScore());
+            }
+            game.resetRound();
         }
     }
 

@@ -33,18 +33,18 @@ public class ClientDriver {
             String msg = "end";
             String choice = "help";
             while (true) {
+                while (reader.ready()) {
+                    msg = reader.readLine();
+                    System.out.println(msg);
+                }
                 // Read the user's choice and send it to the server
-                if (msg.equals("end")) {
+                if (console.ready()) {
                     choice = console.readLine();
+                    if (choice.equals("exit"))
+                        client.exit(0);
                     writer.println(choice);
                 }
 
-                if (choice.equals("exit")) client.exit(0);
-
-                while ((msg = reader.readLine()) != null) {
-                    if (msg.equals("end")) break;
-                    System.out.println(msg);
-                }
             }
         } catch (Exception e) {
             System.out.println("An error occurred.");

@@ -19,7 +19,6 @@ public class Player {
     private int score;
     private Server server;
     private Integer selection;
-    private boolean isWinner;
     private Game game;
 
     public Player(String nickname, Server server) {
@@ -30,7 +29,6 @@ public class Player {
         this.resetScore();
         this.status = PlayerStatus.NONE;
         this.selection = null;
-        this.isWinner = false;
     }
 
     public void ready(String gameName, ClientHandler clientHandler) {
@@ -70,10 +68,6 @@ public class Player {
         this.ticket = HexFormat.ofDelimiter(":").formatHex(hash).toString().substring(78);
     }
 
-    public boolean isWinner() {
-        return isWinner;
-    }
-
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
@@ -88,10 +82,6 @@ public class Player {
 
     public void setSelection(int selection) {
         this.selection = selection;
-    }
-
-    public void setWinner(boolean winner) {
-        isWinner = winner;
     }
 
     // Reset score when the game ends
@@ -115,8 +105,12 @@ public class Player {
         return this.score;
     }
 
-    public int getSelection() {
+    public Integer getSelection() {
         return selection;
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public void setGame(Game game) {
@@ -125,5 +119,12 @@ public class Player {
 
     public void resetSelection() {
         this.selection = null;
+    }
+
+    public void reset() {
+        this.status = PlayerStatus.NONE;
+        this.selection = null;
+        this.game = null;
+        this.score = 5;
     }
 }

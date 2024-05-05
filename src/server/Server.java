@@ -1,8 +1,10 @@
 package server;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import utils.*;
+
 public class Server {
 
     private final int PORT = 13337;
@@ -28,31 +30,14 @@ public class Server {
     }
 
     public void ready(Player player, String gameName, ClientHandler clientHandler) {
-        Game game;
-        for (GameHandler gameHandler : liveGames) {
-            game = gameHandler.getGame();
-            if (game.getName().equals(gameName) && game.getPlayers().contains(player)){
-                player.setStatus(PlayerStatus.READY);
-                player.setGame(game);
-                clientHandler.getWriter().println("You are ready to start the game.");
-                return;
-            } else if (game.getName().equals(gameName) && ! game.getPlayers().contains(player)){
-                clientHandler.getWriter().println("You are not in the game.");
-                return;
-            } else if (game.getName().equals(gameName) && game.getPlayers().size() >= 6){
-                clientHandler.getWriter().println("Game is full.");
-                return;
-            } else if (game.getName().equals(gameName) && game.getStatus().equals(GameStatus.ONGOING)){
-                clientHandler.getWriter().println("Game is ongoing.");
-                return;
-            } else if (game.getName().equals(gameName) && game.getStatus().equals(GameStatus.ENDED)){
-                clientHandler.getWriter().println("Game has ended.");
-                return;
-            }
+        if (player.getGame().getName().equals(gameName) && player.getStatus().equals(PlayerStatus.JOINED)) {
+            player.setStatus(PlayerStatus.READY);
+            clientHandler.getWriter().println("You are ready to start the game.");
+        } else if (!player.getGame().getName().equals(gameName)) {
+            clientHandler.getWriter().println("You are not in this game/game does not exist.");
         }
-        clientHandler.getWriter().println("Game does not exist.");
     }
-    
+
     public GameHandler getGameHandler(String gameName) {
         for (GameHandler gameHandler : liveGames) {
             if (gameHandler.getGame().getName().equals(gameName)) {
@@ -69,6 +54,7 @@ public class Server {
         if (gameHandler == null) {
             Game game = new Game(gameName);
             player.setStatus(PlayerStatus.JOINED);
+            player.setGame(game);
             game.addClientHandler(clientHandler);
             this.addGame(game);
             // Ask the player to ready
@@ -76,24 +62,22 @@ public class Server {
             this.createGame(game);
             return;
         }
-        
+
         // if the game exists, add the player to the game
         Game game = gameHandler.getGame();
-        if (game.getPlayers().contains(player)){
-            clientHandler.getWriter().println("You are already in the game.");
-            return;
-        } else if (game.getPlayers().size() >= game.getMaxPlayers()){
+        if (game.playersCount() >= game.getMaxPlayers()) {
             clientHandler.getWriter().println("Game is full.");
             return;
-        } else if (game.getStatus().equals(GameStatus.ONGOING)){
+        } else if (game.getStatus().equals(GameStatus.ONGOING)) {
             clientHandler.getWriter().println("Game is ongoing.");
             return;
-        } else if (game.getStatus().equals(GameStatus.ENDED)){
+        } else if (game.getStatus().equals(GameStatus.ENDED)) {
             clientHandler.getWriter().println("Game has ended.");
             return;
         }
         // Add the player to the game
         player.setStatus(PlayerStatus.JOINED);
+        player.setGame(game);
         game.addClientHandler(clientHandler);
         this.addGame(game);
 
@@ -109,15 +93,15 @@ public class Server {
     }
 
     public void acceptClients() throws IOException {
-        while (true){
+        while (true) {
             Socket clientSocket = this.serverSocket.accept();
 
             ClientHandler clientHandler = new ClientHandler(clientSocket, this);
             clientHandlers.add(clientHandler);
-            
+
             Thread clientThread = new Thread(clientHandler);
             clientThread.start();
-            
+
             System.out.println("Client connected.");
         }
     }
@@ -151,7 +135,8 @@ public class Server {
 
     public synchronized void addPlayer(Player player) {
         onlinePlayers.add(player);
-        if (! allPlayers.contains(player)) allPlayers.add(player);
+        if (!allPlayers.contains(player))
+            allPlayers.add(player);
     }
 
     public synchronized List<Player> getOnlinePlayers() {
@@ -176,14 +161,14 @@ public class Server {
     }
 
     private synchronized void addGame(Game game) {
-        if (allGames.contains(game)) return ;
+        if (allGames.contains(game))
+            return;
         allGames.add(game);
     }
 
     private synchronized void addGameHandler(GameHandler gameHandler) {
         liveGames.add(gameHandler);
     }
-
 
     public int getPort() {
         return this.PORT;
