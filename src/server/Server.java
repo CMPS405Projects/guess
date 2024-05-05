@@ -22,12 +22,28 @@ public class Server {
 
     private ServerSocket serverSocket;
 
+    private Map<Player, Integer> leaderboard = Collections.synchronizedMap(new HashMap<>());
+
     public Server() {
         try {
             this.serverSocket = new ServerSocket(this.PORT);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateLeaderboard() {
+        for (Player player : allPlayers) {
+            leaderboard.put(player, player.getWins());
+        }
+    }
+
+    public String getLeaderboard() {
+        StringBuilder leaderboardString = new StringBuilder();
+        for (Map.Entry<Player, Integer> entry : leaderboard.entrySet()) {
+            leaderboardString.append(entry.getKey().getNickname()).append(": ").append(entry.getValue()).append("\n");
+        }
+        return leaderboardString.toString();
     }
 
     public void ready(Player player, String gameName, ClientHandler clientHandler) {
@@ -97,7 +113,7 @@ public class Server {
     }
 
     private void createGame(Game game) {
-        GameHandler gameHandler = new GameHandler(game);
+        GameHandler gameHandler = new GameHandler(game, this);
         this.addGameHandler(gameHandler);
         Thread gameThread = new Thread(gameHandler);
         gameThread.start();

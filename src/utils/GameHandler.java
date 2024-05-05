@@ -1,18 +1,20 @@
 package utils;
 
 import server.ClientHandler;
+import server.Server;
 
 import java.util.Formatter;
-import java.util.Timer;
 
 public class GameHandler implements Runnable {
     private Game game;
     private boolean ready = false;
     private boolean allSelectionsMade = false;
     private static final int TIMEOUT_MS = 20000;
+    private Server server;
 
-    public GameHandler(Game game) {
+    public GameHandler(Game game, Server server) {
         this.game = game;
+        this.server = server;
     }
 
     @Override
@@ -24,7 +26,8 @@ public class GameHandler implements Runnable {
             while (elapsedTime < TIMEOUT_MS) {
                 try {
                     long remainingTime = TIMEOUT_MS - elapsedTime;
-                    broadcast("Waiting for players to join..." + game.playersCount() + "/" + game.getMaxPlayers() + ". Remaining time: " + remainingTime + " ms");
+                    broadcast("Waiting for players to join..." + game.playersCount() + "/" + game.getMaxPlayers()
+                            + ". Remaining time: " + remainingTime + " ms");
                     game.wait(remainingTime);
                     elapsedTime = System.currentTimeMillis() - startTime;
                 } catch (InterruptedException e) {
@@ -54,7 +57,6 @@ public class GameHandler implements Runnable {
                 }
             }
 
-
             while (game.activePlayersCount() >= game.getMinPlayers()) {
                 while (!allSelectionsMade) {
                     try {
@@ -81,10 +83,12 @@ public class GameHandler implements Runnable {
                 double minDiff = Double.MAX_VALUE - 1;
                 double[] diff = new double[game.activePlayersCount()];
                 for (int i = 0; i < game.activePlayersCount(); i++) {
-                    if (game.activePlayersCount() == game.getMinPlayers() && game.getClientHandlers().get(i).getPlayer().getSelection() == 0) {
+                    if (game.activePlayersCount() == game.getMinPlayers()
+                            && game.getClientHandlers().get(i).getPlayer().getSelection() == 0) {
                         diff[i] = Double.MAX_VALUE;
                     } else {
-                        diff[i] = Math.abs((double) game.getClientHandlers().get(i).getPlayer().getSelection() - target);
+                        diff[i] = Math
+                                .abs((double) game.getClientHandlers().get(i).getPlayer().getSelection() - target);
                     }
                     if (diff[i] < minDiff) {
                         minDiff = diff[i];
@@ -104,9 +108,12 @@ public class GameHandler implements Runnable {
                     }
                 }
 
-                Formatter roundMsg = new Formatter();
-                roundMsg.format("game %s round %d", game.getName(), game.getRound());
-                // #TODO format output
+                StringBuilder roundMsg = new StringBuilder();
+                roundMsg.append("game " + game.getName() + " round " + game.getRound() + "\n");
+                for (ClientHandler clientHandler : game.getClientHandlers()) {
+                    Player player = clientHandler.getPlayer();
+                    roundMsg.append(player.getNickname() + "," + player.getSelection() + "," + player.getScore() + "," + player.getStatus().toString());
+                }
                 broadcast(roundMsg.toString());
                 game.resetRound();
                 allSelectionsMade = false;
@@ -118,10 +125,10 @@ public class GameHandler implements Runnable {
                 if (!clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
                     winner = clientHandler.getPlayer();
                     broadcast("Winner is: " + winner.getNickname());
-                    // #TODO update leaderboard
+                    winner.incrementWins();
+                    server.updateLeaderboard();
                 }
             }
-
             game.endGame();
         }
     }

@@ -21,6 +21,7 @@ public class Player {
     private Server server;
     private Integer selection;
     private Game game;
+    private Integer wins;
 
     public Player(String nickname, Server server) {
         this.nickname = nickname;
@@ -125,6 +126,14 @@ public class Player {
 
     public void resetSelection() {
         this.selection = null;
+    }
+
+    public Integer getWins() {
+        return wins;
+    }
+
+    public void incrementWins() {
+        this.wins++;
     }
 
     public void reset() {

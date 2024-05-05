@@ -161,6 +161,9 @@ public class ClientHandler implements Runnable {
                             player.makeGuess(Integer.parseInt(thirdArg), this);
                             // writer.println("end");
                             break;
+                        case "leaderboard":
+                            writer.println(server.getLeaderboard());
+                            break;
                         default:
                             writer.println("Error: Invalid command. Enter `help` for a list of commands.");
                             // writer.println("end");
@@ -204,6 +207,7 @@ public class ClientHandler implements Runnable {
         writer.println("join\t[gameId]\tjoin game with gameId if it exists otherwise create a new game");
         writer.println("ready\t[gameId]\tconfirm player readiness for a game");
         writer.println("guess\t[gameId] [number]\tmake a guess for a game");
+        writer.println("leaderboard\t\tshow the leaderboard");
         writer.println("exit\t\texit the game");
     }
 
