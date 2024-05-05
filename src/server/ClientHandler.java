@@ -1,4 +1,5 @@
 package server;
+
 import utils.Game;
 import utils.GameHandler;
 import utils.Player;
@@ -35,7 +36,7 @@ public class ClientHandler implements Runnable {
 
             // a command line interface for the server
             String msg;
-            while ((msg = reader.readLine()) != null){
+            while ((msg = reader.readLine()) != null) {
                 // split msg into arguments if available
                 String[] msgArray = msg.split(" ");
                 String firstArg = "";
@@ -86,7 +87,8 @@ public class ClientHandler implements Runnable {
                                 break;
                             }
                         }
-                        if (!valid) writer.println("Error: Invalid Ticket");
+                        if (!valid)
+                            writer.println("Error: Invalid Ticket");
                         writer.println("end");
                         break;
                     case "join":
@@ -191,6 +193,10 @@ public class ClientHandler implements Runnable {
         writer.println("ready\t[gameId]\tconfirm player readiness for a game");
         writer.println("guess\t[gameId] [number]\tmake a guess for a game");
         writer.println("exit\t\texit the game");
+    }
+
+    public Player getPlayer() {
+        return this.player;
     }
 
 }

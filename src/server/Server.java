@@ -32,7 +32,8 @@ public class Server {
         for (GameHandler gameHandler : liveGames) {
             game = gameHandler.getGame();
             if (game.getName().equals(gameName) && game.getPlayers().contains(player)){
-                player.setStatus((game.getName()).toString() + " ready");
+                player.setStatus(PlayerStatus.READY);
+                player.setGame(game);
                 clientHandler.getWriter().println("You are ready to start the game.");
                 return;
             } else if (game.getName().equals(gameName) && ! game.getPlayers().contains(player)){
@@ -51,6 +52,7 @@ public class Server {
         }
         clientHandler.getWriter().println("Game does not exist.");
     }
+    
     public GameHandler getGameHandler(String gameName) {
         for (GameHandler gameHandler : liveGames) {
             if (gameHandler.getGame().getName().equals(gameName)) {
@@ -67,7 +69,7 @@ public class Server {
         if (gameHandler == null) {
             Game game = new Game(gameName);
             player.setStatus(PlayerStatus.JOINED);
-            game.addPlayer(player);
+            game.addClientHandler(clientHandler);
             this.addGame(game);
             // Ask the player to ready
             clientHandler.getWriter().println("Please enter `ready [gameName]` to start the game.");
@@ -92,7 +94,7 @@ public class Server {
         }
         // Add the player to the game
         player.setStatus(PlayerStatus.JOINED);
-        game.addPlayer(player);
+        game.addClientHandler(clientHandler);
         this.addGame(game);
 
         // Ask the player to ready

@@ -3,6 +3,7 @@ package utils;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import server.ClientHandler;
 import server.Server;
 
 import java.lang.Math;
@@ -13,8 +14,7 @@ import java.util.Map;
 public class Game {
     private static int idCounter = 0;
     private Integer id;
-//    private HashMap<Player, ArrayList<Boolean>> players;
-    private List<Player> players = Collections.synchronizedList(new ArrayList<>());
+    private List<ClientHandler> clientHandlers = Collections.synchronizedList(new ArrayList<>());
     private GameStatus status;
     private int round;
     private final int MIN_PLAYERS = 2;
@@ -26,24 +26,20 @@ public class Game {
         idCounter++;
         this.id = idCounter + (int) (Math.random() * 9000);
         this.status = GameStatus.WAITING;
-        this.players = new ArrayList<>();
         this.round = 1;
         this.name = name;
     }
 
-    public String addPlayer(Player player) {
-        String message = "";
-        if (players.size() < MAX_PLAYERS) {
-            players.add(player);
-            message = "Player " + player.getNickname() + " added to the game!";
-        } else {
-            message = "Game is full!";
-        }
-        return message;
+    public void addClientHandler(ClientHandler clientHandler) {
+        clientHandlers.add(clientHandler);
     }
 
-    public void removePlayer(Player player) {
-        players.remove(player);
+    public List<ClientHandler> getClientHandlers() {
+        return this.clientHandlers;
+    }
+
+    public void removePlayer(ClientHandler clientHandler) {
+        clientHandlers.remove(clientHandler);
     }
 
     public void startGame() {
@@ -55,13 +51,23 @@ public class Game {
     }
 
     public void resetRound() {
-        for (Player player : players) {
-            player.resetScore();
+        for (ClientHandler clientHandler : this.clientHandlers) {
+            clientHandler.getPlayer().resetSelection();
         }
     }
 
     public int playersCount() {
-        return players.size();
+        return clientHandlers.size();
+    }
+
+    public int activePlayersCount() {
+        int count = 0;
+        for (ClientHandler clientHandler : clientHandlers) {
+            if (!clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public Integer getId() {
@@ -70,10 +76,6 @@ public class Game {
 
     public String getName() {
         return this.name;
-    }
-
-    public List<Player> getPlayers() {
-        return this.players;
     }
 
     public int getMinPlayers() {
@@ -87,4 +89,5 @@ public class Game {
     public GameStatus getStatus() {
         return this.status;
     }
+
 }

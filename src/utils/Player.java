@@ -12,28 +12,31 @@ public class Player {
     private String ticket;
     // pseudonym
     private String nickname;
-    // Status to check if the player is still in the game it will be either [gameId] or [gameId lost] or [none]
+    // Status to check if the player is still in the game it will be either [gameId]
+    // or [gameId lost] or [none]
     private PlayerStatus status;
     // Players start with score of 5
     private int score;
     private Server server;
-    private int selection;
+    private Integer selection;
     private boolean isWinner;
     private Game game;
 
-    public Player(String nickname, Server server){
+    public Player(String nickname, Server server) {
         this.nickname = nickname;
         this.server = server;
         this.generateTicket(nickname);
         this.server.addPlayer(this);
         this.resetScore();
         this.status = PlayerStatus.NONE;
-        this.selection = 0;
+        this.selection = null;
         this.isWinner = false;
     }
+
     public void ready(String gameName, ClientHandler clientHandler) {
         this.server.ready(this, gameName, clientHandler);
     }
+
     public void joinGame(String gameName, ClientHandler clientHandler) {
         this.server.joinGame(this, gameName, clientHandler);
     }
@@ -65,7 +68,7 @@ public class Player {
             e.printStackTrace();
         }
         this.ticket = HexFormat.ofDelimiter(":").formatHex(hash).toString().substring(78);
-   }
+    }
 
     public boolean isWinner() {
         return isWinner;
@@ -111,12 +114,16 @@ public class Player {
     public int getScore() {
         return this.score;
     }
-  
-      public int getSelection() {
+
+    public int getSelection() {
         return selection;
     }
 
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    public void resetSelection() {
+        this.selection = null;
     }
 }
