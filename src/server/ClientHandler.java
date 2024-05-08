@@ -152,6 +152,13 @@ public class ClientHandler implements Runnable {
                                 List<GameHandler> gamesList = server.getLiveGames();
                                 writer.println("Games: ");
                                 Game game;
+
+                                // If there is no games validation
+                                if (gamesList.isEmpty()) {
+                                    writer.println("No games available.");
+                                    continue;
+                                }
+
                                 for (GameHandler g : gamesList) {
                                     game = g.getGame();
                                     writer.println(game.getName());
