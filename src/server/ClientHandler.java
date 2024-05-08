@@ -237,15 +237,32 @@ public class ClientHandler implements Runnable {
     }
 
     public void printHelpMenu() {
-        writer.println("Command\tArguments\tAction");
-        writer.println("pseudo\t[pseudonym]\tgenerate new ticket for player with pseudonym");
-        writer.println("ticket\t[ticket]\tvalidate received ticket and, if valid, welcome player with pseudonym");
-        writer.println("menu\tplayers/games\tlist all connected players or available games");
-        writer.println("join\t[gameId]\tjoin game with gameId if it exists otherwise create a new game");
-        writer.println("ready\t[gameId]\tconfirm player readiness for a game");
-        writer.println("guess\t[gameId] [number]\tmake a guess for a game");
-        writer.println("leaderboard\t\tshow the leaderboard");
-        writer.println("exit\t\texit the game");
+        String[][] commands = {
+                {"Command", "Arguments", "Action"},
+                {"pseudo", "[pseudonym]", "Generate new ticket for player with pseudonym"},
+                {"ticket", "[ticket]", "Validate received ticket and, if valid, welcome player with pseudonym"},
+                {"menu", "players/games", "List all connected players or available games"},
+                {"join", "[gameId]", "Join game with gameId if it exists otherwise create a new game"},
+                {"ready", "[gameId]", "Confirm player readiness for a game"},
+                {"guess", "[gameId][number]", "Make a guess for a game"},
+                {"leaderboard", "", "Show the leaderboard"},
+                {"exit", "", "Exit the game"}
+        };
+
+        int[] maxLengths = new int[3];
+        for (String[] command : commands) {
+            for (int i = 0; i < command.length; i++) {
+                maxLengths[i] = Math.max(maxLengths[i], command[i].length());
+            }
+        }
+
+        String format = "| %-" + maxLengths[0] + "s | %-" + maxLengths[1] + "s | %-" + maxLengths[2] + "s |%n";
+
+        writer.printf(format, (Object[]) commands[0]);
+        writer.println("+-" + "-".repeat(maxLengths[0]) + "-+-" + "-".repeat(maxLengths[1]) + "-+-" + "-".repeat(maxLengths[2]) + "-+");
+        for (int i = 1; i < commands.length; i++) {
+            writer.printf(format, (Object[]) commands[i]);
+        }
     }
 
 }
