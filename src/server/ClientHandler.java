@@ -1,7 +1,7 @@
 package server;
 
 import utils.Game;
-import utils.GameHandler;
+import utils.GameStatus;
 import utils.Player;
 import utils.PlayerStatus;
 
@@ -11,9 +11,9 @@ import java.util.List;
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
+    private Server server;
     private BufferedReader reader;
     private PrintWriter writer;
-    private Server server;
     private Player player;
     private String ticket;
 
@@ -67,17 +67,24 @@ public class ClientHandler implements Runnable {
                             // writer.println("end");
                             break;
                         case "pseudo":
+                            if (this.ticket != null) {
+                                writer.println("You are already authenticated.");
+                                break;
+                            }
                             if (secondArg.length() < 3) {
                                 writer.println("Error: Pseudonym must be at least 3 characters long.");
                                 // writer.println("end");
                                 break;
                             }
-                            player = new Player(secondArg, server);
-                            this.player = player;
+                            this.player = new Player(secondArg, server);
                             writer.println("Ticket: " + player.getTicket());
                             // writer.println("end");
                             break;
                         case "ticket":
+                            if (this.ticket != null) {
+                                writer.println("You are already authenticated.");
+                                break;
+                            }
                             boolean valid = false;
                             List<Player> players = server.getAllPlayers();
                             for (Player p : players) {
@@ -89,8 +96,9 @@ public class ClientHandler implements Runnable {
                                     break;
                                 }
                             }
-                            if (!valid)
+                            if (!valid) {
                                 writer.println("Error: Invalid Ticket");
+                            }
                             // writer.println("end");
                             break;
                         case "join":
@@ -111,9 +119,18 @@ public class ClientHandler implements Runnable {
                                 writer.println("Error: You must generate a ticket first.");
                                 // writer.println("end");
                                 break;
-                            } else if (this.ticket == null) {
+                            }
+                            if (this.ticket == null) {
                                 writer.println("Error: You must validate your ticket first.");
                                 // writer.println("end");
+                                break;
+                            }
+                            if (player.getStatus().equals(PlayerStatus.NONE)) {
+                                writer.println("Error: you must join a game first.");
+                                break;
+                            }
+                            if (player.getGame().getStatus().equals(GameStatus.WAITING)) {
+                                writer.println("Waiting for others to join to start the game. Retry later");
                                 break;
                             }
                             if (player.getStatus().equals(PlayerStatus.READY)) {
@@ -121,8 +138,7 @@ public class ClientHandler implements Runnable {
                                 // writer.println("end");
                                 break;
                             }
-                            String gameName = secondArg;
-                            player.ready(gameName, this);
+                            player.ready(secondArg, this);
                             // writer.println("end");
                             break;
                         case "menu":
@@ -150,13 +166,22 @@ public class ClientHandler implements Runnable {
                                 writer.println("Error: You must generate a ticket first.");
                                 // writer.println("end");
                                 break;
-                            } else if (this.ticket == null) {
+                            }
+                            if (this.ticket == null) {
                                 writer.println("Error: You must validate your ticket first.");
                                 // writer.println("end");
                                 break;
                             }
+                            if (player.getStatus().equals(PlayerStatus.NONE)) {
+                                writer.println("Error: you must join a game first.");
+                                break;
+                            }
+                            if (!player.getGame().getStatus().equals(GameStatus.ONGOING)) {
+                                writer.println("Error: The game didn't start yet.");
+                                break;
+                            }
                             if (!player.getGame().getName().equals(secondArg)) {
-
+                                writer.println("Invalid game. Try Again");
                             }
                             player.makeGuess(Integer.parseInt(thirdArg), this);
                             // writer.println("end");
@@ -170,6 +195,7 @@ public class ClientHandler implements Runnable {
                             break;
                     }
                 } catch (Exception e) {
+                    writer.println("An error occurred. " + e.getMessage());
                     continue;
                 }
             }
@@ -187,6 +213,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    public Socket getClientSocket() {
+        return this.clientSocket;
+    }
+
     public BufferedReader getReader() {
         return this.reader;
     }
@@ -195,8 +225,8 @@ public class ClientHandler implements Runnable {
         return this.writer;
     }
 
-    public Socket getClientSocket() {
-        return this.clientSocket;
+    public Player getPlayer() {
+        return this.player;
     }
 
     public void printHelpMenu() {
@@ -209,10 +239,6 @@ public class ClientHandler implements Runnable {
         writer.println("guess\t[gameId] [number]\tmake a guess for a game");
         writer.println("leaderboard\t\tshow the leaderboard");
         writer.println("exit\t\texit the game");
-    }
-
-    public Player getPlayer() {
-        return this.player;
     }
 
 }

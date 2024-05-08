@@ -1,4 +1,5 @@
 package client;
+
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -10,46 +11,24 @@ public class Client {
     private BufferedReader clientConsole;
     private Scanner scanner;
 
-    public void connectToServer(String serverIp, int serverPort) {
-        while (this.serverSocket == null) {
-        try {
-            // Connect to the server
-            this.serverSocket = new Socket(serverIp, serverPort);
-            System.out.println("Connected to the server.");
-        } catch (IOException e) {
-            System.out.println("An error occurred while connecting to the server.");
-            System.out.println("Press any key to try again. Enter 'exit' to quit.");
-            // Pause the program until the user presses a key
-            String choice = this.scanner.nextLine();
-            if (choice.equals("exit")) {
-                this.exit(1);
-            }
-        }
-        }
-    }
-
-    public void exit(int code) {
-        try {
-            this.reader.close();
-            this.writer.close();
-            this.clientConsole.close();
-            this.serverSocket.close();
-            System.exit(code);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public Socket getServerSocket() {
         return this.serverSocket;
     }
 
-    public void disconnect() {
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public BufferedReader getReader() {
+        return this.reader;
+    }
+
+    public PrintWriter getWriter() {
+        return this.writer;
+    }
+
+    public BufferedReader getClientConsole() {
+        return this.clientConsole;
+    }
+
+    public Scanner getScanner() {
+        return this.scanner;
     }
 
     public void setReader(BufferedReader reader) {
@@ -68,20 +47,42 @@ public class Client {
         this.scanner = scanner;
     }
 
-    public BufferedReader getReader() {
-        return this.reader;
+    public void connectToServer(String serverIp, int serverPort) {
+        while (this.serverSocket == null) {
+            try {
+                // Connect to the server
+                this.serverSocket = new Socket(serverIp, serverPort);
+                System.out.println("Connected to the server.");
+            } catch (IOException e) {
+                System.out.println("An error occurred while connecting to the server.");
+                System.out.println("Press any key to try again. Enter 'exit' to quit.");
+                // Pause the program until the user presses a key
+                String choice = this.scanner.nextLine();
+                if (choice.equals("exit")) {
+                    this.exit(1);
+                }
+            }
+        }
     }
 
-    public PrintWriter getWriter() {
-        return this.writer;
+    public void disconnect() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public BufferedReader getClientConsole() {
-        return this.clientConsole;
-    }
-
-    public Scanner getScanner() {
-        return this.scanner;
+    public void exit(int code) {
+        try {
+            this.reader.close();
+            this.writer.close();
+            this.clientConsole.close();
+            this.serverSocket.close();
+            System.exit(code);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

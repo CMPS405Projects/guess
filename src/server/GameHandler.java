@@ -1,14 +1,11 @@
-package utils;
+package server;
 
-import server.ClientHandler;
-import server.Server;
-
-import java.util.Formatter;
+import utils.Game;
+import utils.Player;
+import utils.PlayerStatus;
 
 public class GameHandler implements Runnable {
-    private Game game;
-    private boolean ready = false;
-    private boolean allSelectionsMade = false;
+    private final Game game;
     private static final int TIMEOUT_MS = 20000;
     private Server server;
 
@@ -17,12 +14,15 @@ public class GameHandler implements Runnable {
         this.server = server;
     }
 
+
     @Override
     public void run() {
-        synchronized (game) {
-            long startTime = System.currentTimeMillis();
-            long elapsedTime = 0;
+        boolean ready = false;
+        boolean allSelectionsMade = false;
+        long startTime = System.currentTimeMillis();
+        long elapsedTime = 0;
 
+        synchronized (game) {
             while (elapsedTime < TIMEOUT_MS) {
                 try {
                     long remainingTime = TIMEOUT_MS - elapsedTime;
@@ -41,9 +41,11 @@ public class GameHandler implements Runnable {
                 return;
             }
 
+            game.startGame();
+
+            broadcast("Please enter `ready [gameName]` to start the game.");
             while (!ready) {
                 try {
-                    broadcast("Waiting for players to be ready...");
                     game.wait();
                     ready = true;
                     for (ClientHandler clientHandler : game.getClientHandlers()) {
@@ -58,12 +60,15 @@ public class GameHandler implements Runnable {
             }
 
             while (game.activePlayersCount() >= game.getMinPlayers()) {
+                broadcast("Round " + game.getRound() + "\nPlease enter `guess [gameName] [selection]` to run the round.");
                 while (!allSelectionsMade) {
                     try {
-                        broadcast("Waiting for players selections...");
                         game.wait();
                         allSelectionsMade = true;
                         for (ClientHandler clientHandler : game.getClientHandlers()) {
+                            if (clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
+                                continue;
+                            }
                             if (clientHandler.getPlayer().getSelection() == null) {
                                 allSelectionsMade = false;
                                 break;
@@ -110,12 +115,14 @@ public class GameHandler implements Runnable {
 
                 StringBuilder roundMsg = new StringBuilder();
                 roundMsg.append("game " + game.getName() + " round " + game.getRound() + "\n");
+                roundMsg.append("name,selection,score,won/lost/spectator\n");
                 for (ClientHandler clientHandler : game.getClientHandlers()) {
                     Player player = clientHandler.getPlayer();
-                    roundMsg.append(player.getNickname() + "," + player.getSelection() + "," + player.getScore() + "," + player.getStatus().toString());
+                    roundMsg.append(player.getNickname() + "," + player.getSelection() + "," + player.getScore() + "," + player.getStatus().toString().toLowerCase().toCharArray()[0] + "\n");
                 }
                 broadcast(roundMsg.toString());
-                game.resetRound();
+                game.incrementRound();
+                game.resetPlayersSelections();
                 allSelectionsMade = false;
                 game.notifyAll();
             }
@@ -139,6 +146,9 @@ public class GameHandler implements Runnable {
 
     public void broadcast(String message) {
         for (ClientHandler clientHandler : game.getClientHandlers()) {
+            if (clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
+                continue;
+            }
             clientHandler.getWriter().println(message);
         }
     }

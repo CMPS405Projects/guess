@@ -11,9 +11,13 @@ public class ClientDriver {
     public static void main(String[] args) {
         try {
             if (args.length != 2) {
-                System.out.println("Usage: java ClientDriver <server-ip> <server-port>");
-                System.exit(1);
+//                System.out.println("Usage: java ClientDriver <server-ip> <server-port>");
+//                System.exit(1);
+//              to simplify the process
+                args[0] = "localhost";
+                args[1] = "13337";
             }
+
             client.setScanner(new Scanner(System.in));
             client.connectToServer(args[0], Integer.parseInt(args[1]));
             client.setReader(new BufferedReader(new InputStreamReader(client.getServerSocket().getInputStream())));
@@ -41,7 +45,7 @@ public class ClientDriver {
                 if (console.ready()) {
                     choice = console.readLine();
                     if (choice.equals("exit"))
-                        client.exit(0);
+                        break;
                     writer.println(choice);
                 }
 
