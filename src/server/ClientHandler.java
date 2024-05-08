@@ -7,7 +7,10 @@ import utils.PlayerStatus;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
@@ -39,7 +42,7 @@ public class ClientHandler implements Runnable {
             String msg;
             while ((msg = reader.readLine()) != null) {
                 // split msg into arguments if available
-                String[] msgArray = msg.split(" ");
+                String[] msgArray = splitMessage(msg);
                 String firstArg = "";
                 String secondArg = "";
                 String thirdArg = "";
@@ -201,6 +204,18 @@ public class ClientHandler implements Runnable {
                         case "leaderboard":
                             writer.println(server.getLeaderboard());
                             break;
+                        case "message":
+                            if (player == null) {
+                                writer.println("Error: You must generate a ticket first.");
+                                break;
+                            }
+                            if (this.ticket == null) {
+                                writer.println("Error: You must validate your ticket first.");
+                                break;
+                            }
+                            sendMessage(secondArg, thirdArg);
+                            writer.println("Message sent to "+ secondArg + ": " + thirdArg);
+                            break;
                         default:
                             writer.println("Error: Invalid command. Enter `help` for a list of commands.");
                             // writer.println("end");
@@ -241,6 +256,35 @@ public class ClientHandler implements Runnable {
         return this.player;
     }
 
+    public void sendMessage(String nickname, String message) {
+        List<ClientHandler> clientHandlers = server.getClientHandlers();
+        for (ClientHandler clientHandler : clientHandlers) {
+            if (clientHandler.getPlayer().getNickname().equals(nickname)) {
+                clientHandler.getWriter().println("Message from " + player.getNickname() + ": " + message);
+                return;
+            }
+        }
+        writer.println("Error: Player not found.");
+    }
+    public static String[] splitMessage(String msg) {
+        List<String> argList = new ArrayList<>();
+        // Define a regular expression pattern to match text inside double quotes or individual words
+        Pattern pattern = Pattern.compile("\"([^\"]*)\"|\\S+");
+
+        Matcher matcher = pattern.matcher(msg);
+        while (matcher.find()) {
+            String arg = matcher.group(1); // Check if the match is inside double quotes
+            if (arg != null) {
+                argList.add(arg); // If yes, add it as a single argument
+            } else {
+                arg = matcher.group(); // If not, add it as a separate argument
+                argList.add(arg);
+            }
+        }
+
+        return argList.toArray(new String[0]);
+    }
+
     public void printHelpMenu() {
         String[][] commands = {
                 {"Command", "Arguments", "Action"},
@@ -250,6 +294,7 @@ public class ClientHandler implements Runnable {
                 {"join", "[gameId]", "Join game with gameId if it exists otherwise create a new game"},
                 {"ready", "[gameId]", "Confirm player readiness for a game"},
                 {"guess", "[gameId][number]", "Make a guess for a game"},
+                {"message", "[nickname]['message']", "Sends a message to a player"},
                 {"leaderboard", "", "Show the leaderboard"},
                 {"exit", "", "Exit the game"}
         };
