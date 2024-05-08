@@ -102,6 +102,10 @@ public class Server {
         return this.serverSocket;
     }
 
+    public List<ClientHandler> getClientHandlers() {
+        return this.clientHandlers;
+    }
+
     public synchronized List<Player> getAllPlayers() {
         return allPlayers;
     }
