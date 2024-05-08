@@ -144,6 +144,11 @@ public class ClientHandler implements Runnable {
                         case "menu":
                             if (secondArg.equals("players")) {
                                 List<Player> playersList = server.getOnlinePlayers();
+
+                                if (playersList.isEmpty()) {
+                                    writer.println("No players connected: Validate or Create a Ticket to be online.");
+                                    break;
+                                }
                                 writer.println("Players: ");
                                 for (Player p : playersList) {
                                     writer.println(p.getNickname());
@@ -156,7 +161,7 @@ public class ClientHandler implements Runnable {
                                 // If there is no games validation
                                 if (gamesList.isEmpty()) {
                                     writer.println("No games available.");
-                                    continue;
+                                    break;
                                 }
 
                                 for (GameHandler g : gamesList) {
