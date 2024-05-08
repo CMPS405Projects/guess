@@ -9,8 +9,11 @@ public class ClientDriver {
     private static Client client = new Client();
 
     public static void main(String[] args) {
+
+
         try {
             if (args.length != 2) {
+                args = new String[2];
 //                System.out.println("Usage: java ClientDriver <server-ip> <server-port>");
 //                System.exit(1);
 //              to simplify the process
