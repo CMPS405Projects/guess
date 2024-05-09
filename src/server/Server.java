@@ -88,9 +88,9 @@ public class Server {
                 return;
             }
             // Add the player to the game
-            player.setStatus(PlayerStatus.JOINED);
             player.setGame(game);
             game.addClientHandler(clientHandler);
+            player.setStatus(PlayerStatus.JOINED);
             this.addGame(game);
             game.notify();
         }
