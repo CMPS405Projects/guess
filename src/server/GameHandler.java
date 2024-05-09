@@ -60,15 +60,15 @@ public class GameHandler implements Runnable {
             }
 
             while (game.activePlayersCount() >= game.getMinPlayers()) {
-                broadcast("Round " + game.getRound() + "\nPlease enter `guess [gameName] [selection]` to run the round.");
+                for (ClientHandler clientHandler : game.getClientHandlers()) {
+                    clientHandler.getWriter().println("============================================================================================");
+                    clientHandler.getWriter().println("Round " + game.getRound() + "\nPlease enter `guess [gameName] [selection]` to run the round.");
+                }
                 while (!allSelectionsMade) {
                     try {
                         game.wait();
                         allSelectionsMade = true;
                         for (ClientHandler clientHandler : game.getClientHandlers()) {
-                            if (clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
-                                continue;
-                            }
                             if (clientHandler.getPlayer().getSelection() == null) {
                                 allSelectionsMade = false;
                                 break;
@@ -90,32 +90,36 @@ public class GameHandler implements Runnable {
                 for (int i = 0; i < game.activePlayersCount(); i++) {
                     if (game.activePlayersCount() == game.getMinPlayers()
                             && game.getClientHandlers().get(i).getPlayer().getSelection() == 0) {
-                        diff[i] = Double.MAX_VALUE;
+                        diff[i] = -1;
                     } else {
                         diff[i] = Math
                                 .abs((double) game.getClientHandlers().get(i).getPlayer().getSelection() - target);
-                    }
-                    if (diff[i] < minDiff) {
-                        minDiff = diff[i];
-                    }
-                }
-
-                for (int i = 0; i < game.activePlayersCount(); i++) {
-                    if (diff[i] == minDiff) {
-                        game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.WON);
-                    } else {
-                        game.getClientHandlers().get(i).getPlayer().decrementScore();
-                        if (game.getClientHandlers().get(i).getPlayer().getScore() > 0) {
-                            game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.LOST);
-                        } else {
-                            game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.SPECTATING);
+                        if (diff[i] < minDiff) {
+                            minDiff = diff[i];
                         }
                     }
                 }
 
+                for (int i = 0; i < game.activePlayersCount(); i++) {
+                    if (diff[i] != minDiff) {
+                        game.getClientHandlers().get(i).getPlayer().decrementScore();
+                        if (diff[i] == -1 || game.getClientHandlers().get(i).getPlayer().getScore() == 0) {
+                            ClientHandler loser = game.getClientHandlers().get(i);
+                            loser.getPlayer().setStatus(PlayerStatus.SPECTATING);
+                            broadcast(loser.getPlayer().getNickname() + " was eliminated from the game.");
+                            game.removeClientHandler(loser);
+                            game.addSpectatorClientHandler(loser);
+                        } else {
+                            game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.LOST);
+                        }
+                    } else {
+                        game.getClientHandlers().get(i).getPlayer().setStatus(PlayerStatus.WON);
+                    }
+                }
+
                 StringBuilder roundMsg = new StringBuilder();
-                roundMsg.append("game " + game.getName() + " round " + game.getRound() + "\n");
-                roundMsg.append("name,selection,score,won/lost/spectator\n");
+                roundMsg.append("\ngame " + game.getName() + " round " + game.getRound() + "\n");
+                roundMsg.append("name,selection,score,won/lost\n");
                 for (ClientHandler clientHandler : game.getClientHandlers()) {
                     Player player = clientHandler.getPlayer();
                     roundMsg.append(player.getNickname() + "," + player.getSelection() + "," + player.getScore() + "," + player.getStatus().toString().toLowerCase().toCharArray()[0] + "\n");
@@ -127,15 +131,10 @@ public class GameHandler implements Runnable {
                 game.notifyAll();
             }
 
-            Player winner = null;
-            for (ClientHandler clientHandler : game.getClientHandlers()) {
-                if (!clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
-                    winner = clientHandler.getPlayer();
-                    broadcast("Winner is: " + winner.getNickname());
-                    winner.incrementWins();
-                    server.updateLeaderboard();
-                }
-            }
+            Player winner = game.getClientHandlers().get(0).getPlayer();
+            broadcast("Winner is: " + winner.getNickname());
+            winner.incrementWins();
+            server.updateLeaderboard();
             game.endGame();
         }
     }
@@ -146,9 +145,9 @@ public class GameHandler implements Runnable {
 
     public void broadcast(String message) {
         for (ClientHandler clientHandler : game.getClientHandlers()) {
-            if (clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
-                continue;
-            }
+            clientHandler.getWriter().println(message);
+        }
+        for (ClientHandler clientHandler : game.getSpectatorsClientHandlers()) {
             clientHandler.getWriter().println(message);
         }
     }

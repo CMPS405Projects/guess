@@ -70,10 +70,10 @@ public class Server {
             player.setGame(game);
             game.addClientHandler(clientHandler);
             this.addGame(game);
-//            clientHandler.getWriter().println("Please enter `ready [gameName]` to start the game.");
             this.createGame(game);
             return;
         }
+
         // if the game exists, add the player to the game
         Game game = gameHandler.getGame();
         synchronized (game) {
@@ -94,8 +94,6 @@ public class Server {
             this.addGame(game);
             game.notify();
         }
-        // Ask the player to ready
-        clientHandler.getWriter().println("Please enter `ready [gameName]` to start the game.");
     }
 
     public ServerSocket getServerSocket() {

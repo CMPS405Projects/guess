@@ -14,6 +14,7 @@ public class Game {
     private Server server;
     private GameStatus status;
     private List<ClientHandler> clientHandlers = Collections.synchronizedList(new ArrayList<>());
+    private List<ClientHandler> spectatorsClientHandlers = Collections.synchronizedList(new ArrayList<>());
     private final int MIN_PLAYERS = 2;
     private final int MAX_PLAYERS = 6;
 
@@ -39,6 +40,10 @@ public class Game {
         return this.clientHandlers;
     }
 
+    public List<ClientHandler> getSpectatorsClientHandlers() {
+        return spectatorsClientHandlers;
+    }
+
     public int getMinPlayers() {
         return this.MIN_PLAYERS;
     }
@@ -59,22 +64,20 @@ public class Game {
         clientHandlers.add(clientHandler);
     }
 
-    public void removePlayer(ClientHandler clientHandler) {
+    public void removeClientHandler(ClientHandler clientHandler) {
         clientHandlers.remove(clientHandler);
     }
 
+    public void addSpectatorClientHandler(ClientHandler clientHandler) {
+        spectatorsClientHandlers.add(clientHandler);
+    }
+
     public int playersCount() {
-        return clientHandlers.size();
+        return clientHandlers.size() + spectatorsClientHandlers.size();
     }
 
     public int activePlayersCount() {
-        int count = 0;
-        for (ClientHandler clientHandler : clientHandlers) {
-            if (!clientHandler.getPlayer().getStatus().equals(PlayerStatus.SPECTATING)) {
-                count++;
-            }
-        }
-        return count;
+        return clientHandlers.size();
     }
 
     public void resetPlayersSelections() {
@@ -85,6 +88,9 @@ public class Game {
 
     public void endGame() {
         for (ClientHandler clientHandler : clientHandlers) {
+            clientHandler.getPlayer().reset();
+        }
+        for (ClientHandler clientHandler : spectatorsClientHandlers) {
             clientHandler.getPlayer().reset();
         }
         status = GameStatus.ENDED;
